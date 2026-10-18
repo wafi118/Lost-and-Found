@@ -1,0 +1,21 @@
+<%
+  var base = locals.id || name;
+  var fid = 'f-' + base;
+  var err = locals.errors && errors[name];
+  var val = (locals.values && values[name] !== undefined && values[name] !== null) ? values[name] : '';
+  var describedBy = [];
+  if (locals.hint) describedBy.push('h-' + base);
+  if (err) describedBy.push('e-' + base);
+%>
+<div class="field<%= err ? ' has-error' : '' %>">
+  <label for="<%= fid %>"><%= t(label) %><% if (locals.required) { %><span class="req" aria-hidden="true">*</span><% } %></label>
+  <textarea class="textarea" id="<%= fid %>" name="<%= name %>" rows="<%= locals.rows || 4 %>"
+    <% if (locals.maxlength) { %>maxlength="<%= maxlength %>"<% } %>
+    <% if (locals.minlength) { %>minlength="<%= minlength %>"<% } %>
+    <% if (locals.required) { %>required<% } %>
+    <% if (locals.placeholder) { %>placeholder="<%= t(placeholder) %>"<% } %>
+    <% if (err) { %>aria-invalid="true"<% } %>
+    <% if (describedBy.length) { %>aria-describedby="<%= describedBy.join(' ') %>"<% } %>><%= val %></textarea>
+  <% if (locals.hint) { %><p class="hint" id="h-<%= base %>"><%= t(hint, locals.hintParams) %></p><% } %>
+  <% if (err) { %><p class="error-text" id="e-<%= base %>"><%- icon('alert') %><span><%= t(err.key, err.params) %></span></p><% } %>
+</div>

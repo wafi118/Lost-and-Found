@@ -1,0 +1,63 @@
+<%- include('/partials/top', { shell: 'public' }) %>
+<section class="section">
+  <div class="container stack stack-lg">
+    <div>
+      <h1><%= t('about_title') %></h1>
+      <p class="lead muted"><%= t('about_lead') %></p>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2><%= t('about_does_t') %></h2>
+        <p><%= t('about_does_b') %></p>
+        <p class="muted"><%= t('about_limit') %></p>
+      </div>
+      <div class="panel">
+        <h2><%= t('about_privacy_t') %></h2>
+        <p><%= t('about_privacy_b') %></p>
+        <ul>
+          <li><%= t('about_privacy_1') %></li>
+          <li><%= t('about_privacy_2') %></li>
+          <li><%= t('about_privacy_3') %></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><%= t('about_who_t') %></h2>
+      <p><%= t('about_who_b', { domains: allowedDomains.join(', ') }) %></p>
+      <p class="muted"><%= t('about_roles') %></p>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h2><%= t('about_team_t') %></h2>
+        <p class="muted"><%= team.department %>, <%= team.university %> · <%= team.cohort %></p>
+        <ul class="list">
+          <% team.students.forEach(function (n) { %><li><%= n %></li><% }) %>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2><%= t('about_sup_t') %></h2>
+        <ul class="list">
+          <% team.supervisors.forEach(function (s) { %><li><strong><%= s.name %></strong><br><span class="muted small"><%= s.unit %></span></li><% }) %>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2><%= t('about_contact_t') %></h2>
+      <% if (contact.location || contact.phone || contact.email || contact.hours) { %>
+        <dl class="kv">
+          <% if (contact.location) { %><dt><%= t('contact_location') %></dt><dd><%= contact.location %></dd><% } %>
+          <% if (contact.hours) { %><dt><%= t('contact_hours') %></dt><dd><%= contact.hours %></dd><% } %>
+          <% if (contact.phone) { %><dt><%= t('contact_phone') %></dt><dd><%= contact.phone %></dd><% } %>
+          <% if (contact.email) { %><dt><%= t('contact_email') %></dt><dd><a href="mailto:<%= contact.email %>"><%= contact.email %></a></dd><% } %>
+        </dl>
+      <% } else { %>
+        <p class="muted"><%= t('about_contact_none') %></p>
+      <% } %>
+    </div>
+  </div>
+</section>
+<%- include('/partials/bottom', { shell: 'public' }) %>

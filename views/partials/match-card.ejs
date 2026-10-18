@@ -1,0 +1,44 @@
+<% var staffView = Boolean(locals.staff); %>
+<article class="match">
+  <div class="match-head">
+    <% if (staffView) { %>
+      <div class="score"><b><%= fmt.num(m.score) %></b><span><%= t('match_out_of') %></span></div>
+    <% } else { %>
+      <h3><%= t('match_member_title') %></h3>
+    <% } %>
+    <span class="chip chip-<%= m.status === 'confirmed' ? 'green' : 'indigo' %>"><%= t('match_st_' + m.status) %></span>
+  </div>
+  <div class="pair">
+    <div>
+      <h4><%= t('type_lost') %></h4>
+      <a class="mono" href="<%= staffView ? '/security/cases/' : '/items/' %><%= m.lost.ref %>"><%= m.lost.ref %></a>
+      <p><strong><%= m.lost.title %></strong><br><span class="small muted"><%= nm(m.lost.category) %> · <%= place(m.lost.location) %> · <%= fmt.date(m.lost.occurredAt) %></span></p>
+    </div>
+    <div>
+      <h4><%= t('type_found') %></h4>
+      <a class="mono" href="<%= staffView ? '/security/cases/' + m.found.ref : '/items/' + m.found.ref + '/claim?lost=' + m.lost.ref %>"><%= m.found.ref %></a>
+      <p><strong><%= m.found.titleMasked ? nm(m.found.category) : m.found.title %></strong><br><span class="small muted"><%= nm(m.found.category) %> · <%= place(m.found.location) %> · <%= fmt.date(m.found.occurredAt) %></span></p>
+    </div>
+  </div>
+  <% if (staffView) { %>
+    <ul class="factors" aria-label="<%= t('match_factors') %>">
+      <% ['category', 'description', 'location', 'time'].forEach(function (k) { var f = m.breakdown[k]; %>
+      <li class="factor"><span><%= t('factor_' + k) %></span><span class="bar" data-value="<%= Math.round(f.score * 100) %>"><span></span></span><span class="pts"><%= fmt.num(f.points) %>/<%= fmt.num(f.weight) %></span></li>
+      <% }) %>
+    </ul>
+    <% if (m.reasons.length) { %><ul class="reasons"><% m.reasons.forEach(function (r) { %><li><%= t(r.key, r.params) %></li><% }) %></ul><% } %>
+    <p class="hint"><%= t('match_hint_staff') %></p>
+    <% if (locals.canAct) { %>
+    <div class="form-actions">
+      <% if (m.status === 'suggested') { %>
+      <form class="inline-form" method="post" action="/security/matches/<%= m.id %>/confirm"><%- csrfField() %><button class="btn btn-primary btn-sm" type="submit"><%= t('match_confirm') %></button></form>
+      <% } %>
+      <form class="inline-form" method="post" action="/security/matches/<%= m.id %>/reject"><%- csrfField() %><button class="btn btn-secondary btn-sm" type="submit"><%= m.status === 'confirmed' ? t('match_undo') : t('match_reject') %></button></form>
+    </div>
+    <% } %>
+  <% } else { %>
+    <% if (m.publicReasons && m.publicReasons.length) { %><ul class="reasons"><% m.publicReasons.forEach(function (k) { %><li><%= t(k) %></li><% }) %></ul><% } %>
+    <p class="hint"><%= t('match_hint_member') %></p>
+    <div class="form-actions"><a class="btn btn-primary btn-sm" href="/items/<%= m.found.ref %>/claim?lost=<%= m.lost.ref %>"><%= t('match_claim') %></a></div>
+  <% } %>
+</article>

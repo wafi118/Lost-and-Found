@@ -1,0 +1,51 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_unclaimed') %></h1><p><%= t('unclaimed_sub', { days: board.retentionDays }) %></p></div></div>
+
+<section class="panel">
+  <div class="panel-head"><h2><%= t('unclaimed_flagged') %></h2></div>
+  <% if (!board.flagged.length) { %><p class="muted"><%= t('unclaimed_none') %></p><% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th><%= t('col_item') %></th><th><%= t('unclaimed_held') %></th><% if (canAct) { %><th><%= t('unclaimed_decide') %></th><% } %></tr></thead>
+      <tbody>
+        <% board.flagged.forEach(function (c) { %>
+        <tr>
+          <td><a class="title" href="/security/cases/<%= c.ref %>"><%= c.title %></a><span class="sub"><span class="mono"><%= c.ref %></span> · <%= nm(c.category) %> · <%= c.storageSlot || '' %></span></td>
+          <td class="nowrap"><%= t('unclaimed_days', { n: fmt.num(c.daysHeld) }) %></td>
+          <% if (canAct) { %>
+          <td>
+            <form class="cell-form" method="post" action="/security/unclaimed/<%= c.ref %>/dispose" data-confirm="<%= t('unclaimed_confirm') %>">
+              <%- csrfField() %>
+              <select class="select" name="method" aria-label="<%= t('unclaimed_method') %>">
+                <% methods.forEach(function (m) { %><option value="<%= m %>"><%= t('method_' + m) %></option><% }) %>
+              </select>
+              <textarea class="textarea" name="note" rows="2" maxlength="500" aria-label="<%= t('unclaimed_note') %>" placeholder="<%= t('unclaimed_note') %>"></textarea>
+              <button class="btn btn-primary btn-sm" type="submit"><%= t('unclaimed_dispose') %></button>
+            </form>
+            <form class="cell-form" method="post" action="/security/unclaimed/<%= c.ref %>/extend">
+              <%- csrfField() %>
+              <button class="btn btn-secondary btn-sm" type="submit"><%= t('unclaimed_extend', { days: board.retentionDays }) %></button>
+            </form>
+          </td>
+          <% } %>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</section>
+
+<section class="panel page-section">
+  <div class="panel-head"><h2><%= t('unclaimed_upcoming') %></h2></div>
+  <% if (!board.upcoming.length) { %><p class="muted"><%= t('unclaimed_none_upcoming') %></p><% } else { %>
+  <ul class="list">
+    <% board.upcoming.forEach(function (c) { %>
+    <li><a class="row-link" href="/security/cases/<%= c.ref %>"><span class="title"><%= c.title %><span class="small muted block"><span class="mono"><%= c.ref %></span> · <%= nm(c.category) %></span></span><span class="small muted nowrap"><%= t('unclaimed_due', { date: fmt.date(c.dueAt) }) %></span></a></li>
+    <% }) %>
+  </ul>
+  <% } %>
+  <p class="hint"><%= t('unclaimed_holding', { n: fmt.num(board.holding) }) %></p>
+  <p class="hint"><%= t('unclaimed_policy') %></p>
+</section>
+<%- include('/partials/bottom') %>

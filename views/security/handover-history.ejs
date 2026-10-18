@@ -1,0 +1,41 @@
+<%- include('/partials/top') %>
+<a class="back-link" href="/security/handover"><%- icon('arrow-left') %><%= t('handover_title') %></a>
+<div class="page-head"><div><h1><%= t('handover_history_title') %></h1><p><%= t('handover_history_sub') %></p></div></div>
+<section class="panel">
+  <form class="filters" method="get" action="/security/handover/history" role="search">
+    <div class="field">
+      <label for="status"><%= t('col_status') %></label>
+      <select class="select" id="status" name="status">
+        <option value=""><%= t('track_all_status') %></option>
+        <% statuses.forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= t(s === 'expired' ? 'sec_expired' : ('handover_state_' + s)) %></option><% }) %>
+      </select>
+    </div>
+    <div class="field field-grow">
+      <label for="q"><%= t('browse_search') %></label>
+      <input class="input" id="q" name="q" type="search" value="<%= filters.q %>" maxlength="60" placeholder="<%= t('handover_history_search') %>">
+    </div>
+    <div class="field"><button class="btn btn-primary" type="submit"><%- icon('search') %><%= t('browse_apply') %></button></div>
+  </form>
+  <% if (!list.rows.length) { %>
+    <%- include('/partials/empty', { art: 'search', heading: t('list_empty_title'), message: t('handover_history_empty'), cta: filters.status || filters.q ? { href: '/security/handover/history', label: t('empty_clear'), secondary: true } : null }) %>
+  <% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th><%= t('col_item') %></th><th><%= t('claims_claimant') %></th><th><%= t('col_status') %></th><th><%= t('col_when') %></th><th><%= t('handover_col_by') %></th></tr></thead>
+      <tbody>
+        <% list.rows.forEach(function (h) { %>
+        <tr>
+          <td><a class="title" href="/security/cases/<%= h.ref %>"><%= h.title %></a><span class="sub mono"><%= h.ref %></span></td>
+          <td><a href="/security/claims/<%= h.claimId %>"><%= h.claimantName %></a><% if (h.claimantUniversityId) { %><span class="sub"><%= h.claimantUniversityId %></span><% } %></td>
+          <td><% if (h.expired) { %><span class="chip chip-red"><%= t('sec_expired') %></span><% } else { %><span class="chip chip-<%= h.status === 'completed' ? 'green' : (h.status === 'cancelled' ? 'gray' : 'blue') %>"><%= t('handover_state_' + h.status) %></span><% } %></td>
+          <td class="nowrap"><%= fmt.dateTime(h.completedAt || h.createdAt) %></td>
+          <td><%= h.completedByName || '—' %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+  <%- include('/partials/pager', { list: list, base: '/security/handover/history', params: filters }) %>
+</section>
+<%- include('/partials/bottom') %>

@@ -1,0 +1,23 @@
+<%- include('/partials/top', { shell: 'auth', wide: true }) %>
+<div class="auth-card wide">
+  <h1><%= t('auth_register_title') %></h1>
+  <%- include('/partials/register-tabs', { current: 'email' }) %>
+  <p class="sub"><%= t('auth_register_sub', { domains: allowedDomains.join(', ') }) %></p>
+  <%- include('/partials/form-errors') %>
+  <form method="post" action="/auth/register" novalidate>
+    <%- csrfField() %>
+    <div class="form-grid">
+      <%- include('/partials/register-fields', { emailLabel: 'f_email_bup', emailHint: 'f_email_hint', emailHintParams: { domains: allowedDomains.join(', ') } }) %>
+    </div>
+    <div class="field <%= errors.attest ? 'has-error' : '' %>">
+      <div class="check">
+        <input type="checkbox" id="attest" name="attest" <%= values.attest ? 'checked' : '' %> <% if (errors.attest) { %>aria-invalid="true" aria-describedby="e-attest"<% } %>>
+        <label for="attest"><%= t('f_attest') %></label>
+      </div>
+      <% if (errors.attest) { %><p class="error-text" id="e-attest"><%- icon('alert') %><span><%= t(errors.attest.key) %></span></p><% } %>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit"><%= t('nav_register') %></button>
+  </form>
+  <div class="auth-links"><span class="muted"><%= t('auth_have_account') %> <a href="/auth/login"><%= t('nav_signin') %></a></span></div>
+</div>
+<%- include('/partials/bottom', { shell: 'auth', wide: true }) %>

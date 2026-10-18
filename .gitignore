@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+# Uploaded photos are private user data: never commit them.
+uploads/*
+!uploads/.gitkeep
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+coverage/

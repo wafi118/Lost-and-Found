@@ -1,0 +1,50 @@
+<%
+  var shellName = locals.shell || 'public';
+%><% if (shellName === 'public') { %>
+</main>
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid<%= (contact.location || contact.phone || contact.email || contact.hours) ? ' has-contact' : '' %>">
+      <div>
+        <h2><%= t('site_name') %></h2>
+        <p><%= t('footer_about') %></p>
+      </div>
+      <div>
+        <h2><%= t('footer_links') %></h2>
+        <ul>
+          <li><a href="/browse"><%= t('nav_browse') %></a></li>
+          <li><a href="/about"><%= t('nav_about') %></a></li>
+          <li><a href="https://www.bup.edu.bd" target="_blank" rel="noopener noreferrer"><%= t('footer_bup') %></a></li>
+          <% if (!user) { %><li><a href="/auth/login"><%= t('nav_signin') %></a></li><li><a href="/auth/register"><%= t('nav_register') %></a></li><% } %>
+        </ul>
+      </div>
+      <% if (contact.location || contact.phone || contact.email || contact.hours) { %>
+      <div>
+        <h2><%= t('footer_contact') %></h2>
+        <ul>
+          <% if (contact.location) { %><li><%= contact.location %></li><% } %>
+          <% if (contact.hours) { %><li><%= contact.hours %></li><% } %>
+          <% if (contact.phone) { %><li><a href="tel:<%= contact.phone.replace(/[^+0-9]/g, '') %>"><%= contact.phone %></a></li><% } %>
+          <% if (contact.email) { %><li><a href="mailto:<%= contact.email %>"><%= contact.email %></a></li><% } %>
+        </ul>
+      </div>
+      <% } %>
+    </div>
+    <p class="footer-note"><%= t('footer_project') %></p>
+  </div>
+</footer>
+<% } else if (shellName === 'app') { %>
+    </main>
+  </div>
+</div>
+<% } else { %>
+    </div>
+  </main>
+</div>
+<% } %>
+<script src="/js/site.js" defer></script>
+<% if (locals.user && liveAlerts) { %><script src="/socket.io/socket.io.js" defer></script>
+<script src="/js/realtime.js" defer></script>
+<% } %><% (locals.scripts || []).forEach(function (src) { %><script src="<%= src %>" defer></script>
+<% }) %></body>
+</html>

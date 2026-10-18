@@ -1,0 +1,53 @@
+<% var assets = { styles: ['/vendor/leaflet/leaflet.css'], scripts: ['/vendor/chart.js', '/vendor/leaflet/leaflet.js', '/js/analytics.js'] }; %><%- include('/partials/top', assets) %>
+<div class="page-head"><div><h1><%= t('nav_analytics') %></h1><p><%= t('an_sub') %></p></div></div>
+<div class="stat-row compact" role="group" aria-label="<%= t('admin_stats_cases') %>">
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.lost) %></span><span class="stat-label"><%= t('an_total_lost') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.found) %></span><span class="stat-label"><%= t('an_total_found') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.returned) %></span><span class="stat-label"><%= t('an_returned') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.recoveryRate) %>%</span><span class="stat-label"><%= t('an_recovery') %></span></div>
+  <div class="stat"><span class="stat-num"><%= totals.avgResolutionDays === null ? '—' : fmt.num(totals.avgResolutionDays) %></span><span class="stat-label"><%= t('an_avg_days') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.unclaimed) %></span><span class="stat-label"><%= t('an_unclaimed') %></span></div>
+</div>
+<p class="hint"><%= t('an_recovery_note') %></p>
+
+<div class="grid-2 page-section">
+  <section class="panel">
+    <h2><%= t('an_monthly') %></h2>
+    <div class="chart-box"><canvas id="chart-monthly" role="img" aria-label="<%= t('an_monthly') %>"></canvas></div>
+  </section>
+  <section class="panel">
+    <h2><%= t('an_by_status') %></h2>
+    <div class="chart-box"><canvas id="chart-status" role="img" aria-label="<%= t('an_by_status') %>"></canvas></div>
+  </section>
+</div>
+
+<section class="panel page-section">
+  <h2><%= t('an_by_category') %></h2>
+  <div class="chart-box tall"><canvas id="chart-category" role="img" aria-label="<%= t('an_by_category') %>"></canvas></div>
+  <details class="page-section">
+    <summary><%= t('an_show_table') %></summary>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th><%= t('f_category') %></th><th class="num"><%= t('type_lost') %></th><th class="num"><%= t('type_found') %></th></tr></thead>
+        <tbody><% byCategory.forEach(function (r) { %><tr><td><%= nm(r) %></td><td class="num"><%= fmt.num(r.lost) %></td><td class="num"><%= fmt.num(r.found) %></td></tr><% }) %></tbody>
+      </table>
+    </div>
+  </details>
+</section>
+
+<section class="panel page-section">
+  <h2><%= t('an_hotspots') %></h2>
+  <p class="muted"><%= t('an_hotspots_sub') %></p>
+  <div class="map-box" id="hotspot-map" role="region" aria-label="<%= t('an_hotspots') %>"></div>
+  <p class="legend-note"><%= t('an_map_note') %></p>
+  <% if (hotspots.length) { %>
+  <div class="table-wrap page-section">
+    <table class="table">
+      <thead><tr><th><%= t('f_location') %></th><th class="num"><%= t('an_cases') %></th></tr></thead>
+      <tbody><% hotspots.forEach(function (h) { %><tr><td><%= place(h) %></td><td class="num"><%= fmt.num(h.count) %></td></tr><% }) %></tbody>
+    </table>
+  </div>
+  <% } %>
+</section>
+<script type="application/json" id="analytics-data"><%- chartJson %></script>
+<%- include('/partials/bottom', assets) %>

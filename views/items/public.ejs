@@ -1,0 +1,32 @@
+<%- include('/partials/top', { shell: 'public' }) %>
+<section class="section">
+  <div class="container stack">
+    <a class="back-link" href="/browse"><%- icon('arrow-left') %><%= t('back_to_board') %></a>
+    <div class="panel">
+      <div class="cluster">
+        <span class="tag tag-<%= card.type %>"><%= t('type_' + card.type) %></span>
+        <%- include('/partials/chip', { kind: 'case', value: card.status }) %>
+        <span class="mono muted"><%= card.ref %></span>
+      </div>
+      <h1><%= card.masked ? card.categoryName : card.title %></h1>
+      <dl class="kv">
+        <dt><%= t('f_category') %></dt><dd><%= card.categoryName %></dd>
+        <dt><%= t('item_where') %></dt><dd><%= card.building %></dd>
+        <dt><%= t('item_when') %></dt><dd><%= fmt.date(card.occurredAt) %></dd>
+      </dl>
+      <p class="hint"><%- icon('lock', 'icon-sm') %> <%= card.masked ? t('item_masked_note') : t('board_privacy') %></p>
+    </div>
+    <div class="notice">
+      <% if (card.type === 'found') { %>
+        <h2><%= t('public_found_title') %></h2>
+        <p><%= t('public_found_body') %></p>
+        <a class="btn btn-primary" href="/auth/login?next=<%= encodeURIComponent('/items/' + card.ref + '/claim') %>"><%= t('public_found_cta') %></a>
+      <% } else { %>
+        <h2><%= t('public_lost_title') %></h2>
+        <p><%= t('public_lost_body') %></p>
+        <a class="btn btn-primary" href="/auth/login?next=<%= encodeURIComponent('/report?type=found') %>"><%= t('public_lost_cta') %></a>
+      <% } %>
+    </div>
+  </div>
+</section>
+<%- include('/partials/bottom', { shell: 'public' }) %>

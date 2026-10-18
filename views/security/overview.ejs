@@ -1,0 +1,42 @@
+<%- include('/partials/top') %>
+<div class="page-head">
+  <div><h1><%= t('sec_overview_title') %></h1><p><%= t('sec_overview_sub') %></p></div>
+  <% if (canAct) { %><a class="btn btn-primary" href="/security/intake"><%- icon('plus') %><%= t('intake_title') %></a><% } %>
+</div>
+<div class="stat-row" role="group" aria-label="<%= t('sec_stats') %>">
+  <a class="stat" href="/security/queue"><span class="stat-num"><%= fmt.num(summary.toReview) %></span><span class="stat-label"><%= t('sec_stat_review') %></span></a>
+  <a class="stat" href="/security/matches"><span class="stat-num"><%= fmt.num(summary.matchesToReview) %></span><span class="stat-label"><%= t('sec_stat_matches') %></span></a>
+  <a class="stat" href="/security/claims"><span class="stat-num"><%= fmt.num(summary.claimsWaiting) %></span><span class="stat-label"><%= t('sec_stat_claims') %></span></a>
+  <a class="stat" href="/security/handover"><span class="stat-num"><%= fmt.num(summary.handoversPending) %></span><span class="stat-label"><%= t('sec_stat_handovers') %></span></a>
+  <a class="stat" href="/security/inventory"><span class="stat-num"><%= fmt.num(summary.inCustody) %></span><span class="stat-label"><%= t('sec_stat_custody') %></span></a>
+  <a class="stat" href="/security/unclaimed"><span class="stat-num"><%= fmt.num(summary.flagged) %></span><span class="stat-label"><%= t('sec_stat_flagged') %></span></a>
+</div>
+<div class="layout-2 page-section">
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('sec_waiting_review') %></h2><a class="btn btn-ghost btn-sm" href="/security/queue"><%= t('dash_all') %></a></div>
+    <%- include('/partials/case-list', { rows: queue, base: '/security/cases/' }) %>
+  </section>
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('sec_claims_waiting') %></h2><a class="btn btn-ghost btn-sm" href="/security/claims"><%= t('dash_all') %></a></div>
+      <% if (!waiting.length) { %><p class="muted"><%= t('sec_none') %></p><% } else { %>
+      <ul class="list">
+        <% waiting.forEach(function (c) { %>
+        <li><a class="row-link" href="/security/claims/<%= c.id %>"><span class="title"><%= c.found.title || nm(c.found.category) %><span class="small muted block"><%= c.found.ref %> · <%= c.claimant ? c.claimant.name : '' %></span></span><%- include('/partials/chip', { kind: 'claim', value: c.status }) %></a></li>
+        <% }) %>
+      </ul>
+      <% } %>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('sec_handovers_pending') %></h2><a class="btn btn-ghost btn-sm" href="/security/handover"><%= t('dash_all') %></a></div>
+      <% if (!pending.length) { %><p class="muted"><%= t('sec_none') %></p><% } else { %>
+      <ul class="list">
+        <% pending.forEach(function (p) { %>
+        <li><a class="row-link" href="/security/claims/<%= p.claim.id %>"><span class="title"><%= p.found.title %><span class="small muted block"><%= p.found.ref %> · <%= t('sec_expires', { date: fmt.date(p.handover.expiresAt) }) %></span></span><% if (p.expired) { %><span class="chip chip-red"><%= t('sec_expired') %></span><% } %></a></li>
+        <% }) %>
+      </ul>
+      <% } %>
+    </section>
+  </div>
+</div>
+<%- include('/partials/bottom') %>

@@ -1,0 +1,29 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_my_claims') %></h1><p><%= t('claims_mine_sub') %></p></div></div>
+<% if (!list.length) { %>
+  <%- include('/partials/empty', { art: 'shield', heading: t('empty_claims_title'), message: t('empty_claims_body'), cta: { href: '/browse', label: t('nav_browse'), secondary: true } }) %>
+<% } else { %>
+<div class="stack">
+  <% list.forEach(function (row) { %>
+  <section class="panel">
+    <div class="cluster">
+      <%- include('/partials/chip', { kind: 'claim', value: row.claim.status }) %>
+      <span class="mono muted"><%= row.claim.found.ref %></span>
+    </div>
+    <h2><a href="/claims/<%= row.claim.id %>"><%= row.claim.found.title || nm(row.claim.found.category) %></a></h2>
+    <p class="small muted"><%= fmt.date(row.claim.createdAt) %></p>
+    <% if (row.claim.status === 'verified' && row.handover && !row.handover.expired) { %>
+    <div class="qr-box">
+      <img src="/claims/<%= row.claim.id %>/qr.png" alt="<%= t('claim_qr_alt') %>" width="180" height="180">
+      <p class="small muted"><%= t('claim_code_label') %></p>
+      <p class="code-big"><%= row.handover.code %></p>
+      <p class="small muted"><%= t('claim_valid_until', { date: fmt.dateTime(row.handover.expiresAt) }) %></p>
+    </div>
+    <% } else if (row.claim.status === 'verified') { %>
+    <p class="hint"><%= t('claims_open_for_qr') %></p>
+    <% } %>
+  </section>
+  <% }) %>
+</div>
+<% } %>
+<%- include('/partials/bottom') %>

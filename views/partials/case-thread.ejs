@@ -1,0 +1,91 @@
+<%
+  /* Notes the reporter can read, and the update thread beside them.
+     Params: view, notes, updates, canNote, canUpdate, canDeleteNote, updateBase */
+  var notes = locals.notes || [];
+  var updates = locals.updates || [];
+%>
+<section class="panel">
+  <div class="panel-head"><h2><%= t('case_notes') %></h2></div>
+  <p class="hint"><%= t('note_hint') %></p>
+  <% if (!notes.length) { %><p class="muted"><%= t('case_notes_none') %></p><% } else { %>
+  <ul class="list">
+    <% notes.forEach(function (n) { %>
+    <li>
+      <strong><%= t('note_kind_' + n.kind) %></strong> <span class="small muted"><%= fmt.dateTime(n.createdAt) %></span>
+      <% if (n.deletedAt) { %>
+        <br><span class="muted"><%= t('note_deleted', { date: fmt.dateTime(n.deletedAt) }) %></span>
+      <% } else { %>
+        <% if (n.camera || n.windowFrom) { %><br><span class="small muted"><%= n.camera %><% if (n.windowFrom) { %> · <%= fmt.dateTime(n.windowFrom) %><% if (n.windowTo) { %> – <%= fmt.dateTime(n.windowTo) %><% } %><% } %></span><% } %>
+        <br><span class="prose"><%= n.findings %></span>
+        <% if (canDeleteNote) { %>
+        <form method="post" action="/security/cases/<%= view.ref %>/notes/<%= n.id %>/delete" data-confirm="<%= t('note_delete_confirm') %>"><%- csrfField() %>
+          <button class="btn btn-ghost btn-sm" type="submit"><%= t('note_delete') %></button>
+        </form>
+        <% } %>
+      <% } %>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+  <% if (canNote) { %>
+  <hr>
+  <form method="post" action="/security/cases/<%= view.ref %>/notes" novalidate>
+    <%- csrfField() %>
+    <div class="form-grid">
+      <%- include('/partials/select', { name: 'kind', label: 'note_kind', required: true, options: [{ value: 'note', label: t('note_kind_note') }, { value: 'cctv', label: t('note_kind_cctv') }], values: {} }) %>
+      <%- include('/partials/field', { name: 'camera', label: 'note_camera', maxlength: 80, values: {} }) %>
+      <%- include('/partials/field', { name: 'windowFrom', label: 'note_from', type: 'datetime-local', max: nowInput(), values: {} }) %>
+      <%- include('/partials/field', { name: 'windowTo', label: 'note_to', type: 'datetime-local', max: nowInput(), values: {} }) %>
+      <div class="span-2"><%- include('/partials/textarea', { name: 'findings', label: 'note_findings', required: true, rows: 3, maxlength: 1500, values: {} }) %></div>
+    </div>
+    <button class="btn btn-secondary" type="submit"><%= t('note_save') %></button>
+  </form>
+  <% } %>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h2><%= t('updates_title') %></h2></div>
+  <p class="hint"><%= t('updates_sub') %></p>
+  <% if (!updates.length) { %><p class="muted"><%= t('updates_none') %></p><% } else { %>
+  <ul class="list">
+    <% updates.forEach(function (u) { %>
+    <li>
+      <strong><%= u.authorRole === 'security' ? t('role_security') : u.authorName %></strong>
+      <span class="small muted"><%= fmt.dateTime(u.createdAt) %></span>
+      <% if (u.deletedAt) { %>
+        <br><span class="muted"><%= t('update_deleted', { date: fmt.dateTime(u.deletedAt) }) %></span>
+      <% } else { %>
+        <% if (u.body) { %><br><span class="prose"><%= u.body %></span><% } %>
+        <% if (u.image) { %>
+          <br><img class="item-photo" src="/uploads/<%= u.image %>" alt="<%= t('update_image_alt') %>">
+          <% if (canUpdate) { %>
+          <form method="post" action="<%= updateBase %>/<%= u.id %>/image" data-confirm="<%= t('update_image_delete_confirm') %>"><%- csrfField() %>
+            <button class="btn btn-ghost btn-sm" type="submit"><%= t('update_image_delete') %></button>
+          </form>
+          <% } %>
+        <% } else if (u.hadImage) { %>
+          <br><span class="muted"><%= t('update_image_deleted', { date: fmt.dateTime(u.imageDeletedAt) }) %></span>
+        <% } %>
+        <% if (canUpdate && (canDeleteNote || u.userId === user.id)) { %>
+        <form method="post" action="<%= updateBase %>/<%= u.id %>/delete" data-confirm="<%= t('update_delete_confirm') %>"><%- csrfField() %>
+          <button class="btn btn-ghost btn-sm" type="submit"><%= t('update_delete') %></button>
+        </form>
+        <% } %>
+      <% } %>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+  <% if (canUpdate) { %>
+  <hr>
+  <form method="post" action="<%= updateBase %>?_csrf=<%= csrfToken() %>" enctype="multipart/form-data" novalidate>
+    <%- include('/partials/textarea', { name: 'body', label: 'updates_body', rows: 3, maxlength: 1500, values: {}, errors: {} }) %>
+    <div class="field">
+      <label for="update-photo"><%= t('updates_image') %></label>
+      <input class="input" id="update-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp">
+      <p class="hint"><%= t('updates_image_hint') %></p>
+    </div>
+    <button class="btn btn-primary" type="submit"><%= t('updates_send') %></button>
+  </form>
+  <% } %>
+</section>

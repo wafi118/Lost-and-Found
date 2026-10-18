@@ -1,0 +1,20 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_notifications') %></h1><p><%= t('notif_sub') %></p></div></div>
+<section class="panel">
+  <% if (!list.rows.length) { %>
+    <%- include('/partials/empty', { art: 'bell', heading: t('notif_none'), message: t('notif_none_body') }) %>
+  <% } else { %>
+  <ul class="list">
+    <% list.rows.forEach(function (n) { %>
+    <li>
+      <a class="row-link" href="<%= n.link || '/notifications' %>">
+        <span class="title"><%= t(n.key, n.params) %><% if (!n.read) { %> <span class="chip chip-blue"><%= t('notif_new') %></span><% } %></span>
+        <span class="small muted nowrap"><%= fmt.dateTime(n.createdAt) %></span>
+      </a>
+    </li>
+    <% }) %>
+  </ul>
+  <%- include('/partials/pager', { list: list, base: '/notifications', params: {} }) %>
+  <% } %>
+</section>
+<%- include('/partials/bottom') %>

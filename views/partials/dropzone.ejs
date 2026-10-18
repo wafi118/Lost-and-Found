@@ -1,0 +1,29 @@
+<%
+  /* Photo uploader: drag and drop or choose a file, with an instant preview and a remove button.
+     Params: name (the field the route reads: 'photo' or 'proof'), label and hint (locale keys), required.
+     The browser checks type and size for convenience only. utils/images.js checks the real content,
+     and middleware/upload.js enforces the size limit. Messages come from here so they follow the language. */
+  var dzId = 'f-' + name;
+  var dzMb = Math.round(maxUploadBytes / 1048576);
+%>
+<div class="field dropzone" data-dropzone data-max-bytes="<%= maxUploadBytes %>" data-types="image/jpeg,image/png,image/webp"
+  data-msg-type="<%= t('svc_UPLOAD_TYPE') %>" data-msg-size="<%= t('dz_err_size') %>" data-msg-read="<%= t('dz_err_read') %>"
+  data-msg-multi="<%= t('dz_err_multi') %>" data-msg-nodnd="<%= t('dz_err_nodnd') %>">
+  <span class="label"><%= t(label) %><% if (locals.required) { %><span class="req" aria-hidden="true">*</span><% } %></span>
+  <label class="dropzone-area" for="<%= dzId %>">
+    <input class="dropzone-input" id="<%= dzId %>" name="<%= name %>" type="file" accept="image/jpeg,image/png,image/webp"<%- locals.required ? ' required' : '' %> aria-describedby="h-<%= name %> e-<%= name %>">
+    <%- icon('image', 'dropzone-icon') %>
+    <span class="dropzone-title"><%= t('dz_title') %></span>
+    <span class="dropzone-choose"><%= t('dz_browse') %></span>
+  </label>
+  <div class="dropzone-preview" data-dz-preview hidden>
+    <img alt="<%= t('f_photo_preview') %>" data-dz-img>
+    <div class="dropzone-meta">
+      <span class="dropzone-name" data-dz-name></span>
+      <span class="small muted" data-dz-size></span>
+      <button type="button" class="btn btn-secondary btn-sm" data-dz-remove><%- icon('x') %><%= t('dz_remove') %></button>
+    </div>
+  </div>
+  <p class="hint" id="h-<%= name %>"><%= t(hint, { mb: dzMb }) %></p>
+  <p class="error-text" id="e-<%= name %>" data-dz-error hidden><%- icon('alert') %><span></span></p>
+</div>

@@ -1,0 +1,15 @@
+<%- include('/partials/top', { shell: 'public' }) %>
+<section class="section">
+  <div class="container">
+    <div class="error-page">
+      <p class="error-code" aria-hidden="true"><%= code %></p>
+      <h1><%= t(titleKey) %></h1>
+      <% if (bodyKey) { %><p class="muted"><%= t(bodyKey, params) %></p><% } %>
+      <div class="cluster">
+        <a class="btn btn-primary" href="/"><%- icon('home') %><%= t('err_home') %></a>
+        <% if (user) { %><a class="btn btn-secondary" href="<%= LANDING[user.role] || '/' %>"><%= t('nav_workspace') %></a><% } else { %><a class="btn btn-secondary" href="/auth/login"><%= t('nav_signin') %></a><% } %>
+      </div>
+    </div>
+  </div>
+</section>
+<%- include('/partials/bottom', { shell: 'public' }) %>

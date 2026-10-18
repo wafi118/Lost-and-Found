@@ -1,0 +1,78 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_users') %></h1><p><%= t('users_sub') %></p></div></div>
+<div class="stack">
+  <% if (inviteLink) { %>
+  <div class="dev-box"><strong><%= t('dev_link_title') %></strong><%= t('dev_invite_body') %><br><a href="<%= inviteLink %>"><%= inviteLink %></a></div>
+  <% } %>
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('users_invite_title') %></h2></div>
+    <p class="muted"><%= t('users_invite_sub') %></p>
+    <form method="post" action="/admin/users/invite" novalidate>
+      <%- csrfField() %>
+      <div class="form-grid">
+        <%- include('/partials/field', { name: 'name', label: 'f_name', required: true, maxlength: 80, values: {}, errors: {} }) %>
+        <%- include('/partials/field', { name: 'email', label: 'f_email', type: 'email', required: true, inputmode: 'email', hint: 'f_email_hint', hintParams: { domains: allowedDomains.join(', ') }, values: {}, errors: {} }) %>
+        <%- include('/partials/select', { name: 'role', label: 'users_role', required: true, options: roles.map(function (r) { return { value: r, label: t(roleKey[r]) }; }), values: {}, errors: {} }) %>
+      </div>
+      <button class="btn btn-primary" type="submit"><%= t('users_invite_button') %></button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <form class="filters" method="get" action="/admin/users" role="search">
+      <div class="field field-grow">
+        <label for="q"><%= t('browse_search') %></label>
+        <input class="input" id="q" name="q" type="search" value="<%= filters.q %>" maxlength="60" placeholder="<%= t('users_search_ph') %>">
+      </div>
+      <div class="field">
+        <label for="role"><%= t('users_role') %></label>
+        <select class="select" id="role" name="role">
+          <option value=""><%= t('users_all_roles') %></option>
+          <% ['member', 'security', 'approver', 'admin'].forEach(function (r) { %><option value="<%= r %>" <%= filters.role === r ? 'selected' : '' %>><%= t(roleKey[r]) %></option><% }) %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="status"><%= t('col_status') %></label>
+        <select class="select" id="status" name="status">
+          <option value=""><%= t('track_all_status') %></option>
+          <% ['pending', 'active', 'suspended'].forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= t('user_st_' + s) %></option><% }) %>
+          <option value="deleted" <%= filters.status === 'deleted' ? 'selected' : '' %>><%= t('users_deleted') %></option>
+        </select>
+      </div>
+      <div class="field"><button class="btn btn-primary" type="submit"><%- icon('search') %><%= t('browse_apply') %></button></div>
+    </form>
+    <% if (!list.rows.length) { %>
+      <%- include('/partials/empty', { art: 'users', heading: t('list_empty_title'), message: t('users_empty') }) %>
+    <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th><%= t('f_name') %></th><th><%= t('users_role') %></th><th><%= t('col_status') %></th><th><%= t('users_last_login') %></th><th><%= t('users_actions') %></th></tr></thead>
+        <tbody>
+          <% list.rows.forEach(function (u) { %>
+          <tr>
+            <td><a class="title" href="/admin/users/<%= u.id %>"><%= u.name %></a><span class="sub"><% if (!u.deletedAt) { %><%= u.email %><% } %><% if (u.universityId) { %><% if (!u.deletedAt) { %> · <% } %><%= u.universityId %><% } %></span></td>
+            <td><%= t(roleKey[u.role]) %></td>
+            <td><% if (u.deletedAt) { %><span class="chip chip-gray"><%= t('users_deleted') %></span><% } else { %><%- include('/partials/chip', { kind: 'user', value: u.status }) %><% } %><% if (u.verificationMethod === 'id_card') { %> <span class="chip chip-blue"><%= t('users_via_id') %></span><% } %><% if (u.invited) { %> <span class="chip chip-gray"><%= t('users_invited') %></span><% } else if (!u.emailVerified && !u.deletedAt) { %> <span class="chip chip-gray"><%= t('admin_unverified') %></span><% } %></td>
+            <td class="nowrap"><%= u.lastLoginAt ? fmt.date(u.lastLoginAt) : '—' %></td>
+            <td>
+              <div class="table-actions">
+                <% if (!u.deletedAt) { %><a class="btn btn-secondary btn-sm" href="/admin/users/<%= u.id %>"><%= t('users_edit') %></a><% } %>
+                <% if (u.status === 'pending' && u.emailVerified && u.verificationMethod === 'id_card') { %>
+                  <% if (u.idProofId) { %><a class="btn btn-primary btn-sm" href="/admin/id-reviews/<%= u.idProofId %>"><%= t('idr_review') %></a><% } %>
+                <% } else if (u.status === 'pending' && u.emailVerified) { %><form class="inline-form" method="post" action="/admin/users/<%= u.id %>/approve"><%- csrfField() %><button class="btn btn-primary btn-sm" type="submit"><%= t('admin_approve') %></button></form><% } %>
+                <% if (u.invited && u.status !== 'suspended') { %><form class="inline-form" method="post" action="/admin/users/<%= u.id %>/resend-invite"><%- csrfField() %><button class="btn btn-secondary btn-sm" type="submit"><%= t('users_resend_invite') %></button></form><% } %>
+                <% if (u.status === 'active' && u.id !== user.id) { %><form class="inline-form" method="post" action="/admin/users/<%= u.id %>/suspend" data-confirm="<%= t('users_suspend_confirm', { name: u.name }) %>"><%- csrfField() %><button class="btn btn-danger btn-sm" type="submit"><%= t('users_suspend') %></button></form><% } %>
+                <% if (u.status === 'suspended' && !u.deletedAt) { %><form class="inline-form" method="post" action="/admin/users/<%= u.id %>/reactivate"><%- csrfField() %><button class="btn btn-secondary btn-sm" type="submit"><%= t('users_reactivate') %></button></form><% } %>
+                <% if (!u.deletedAt && u.id !== user.id) { %><form class="inline-form" method="post" action="/admin/users/<%= u.id %>/delete" data-confirm="<%= t('users_delete_confirm', { name: u.name }) %>"><%- csrfField() %><button class="btn btn-danger btn-sm" type="submit"><%= t('users_delete') %></button></form><% } %>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+    <%- include('/partials/pager', { list: list, base: '/admin/users', params: filters }) %>
+  </section>
+</div>
+<%- include('/partials/bottom') %>

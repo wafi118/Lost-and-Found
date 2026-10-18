@@ -1,0 +1,32 @@
+<%
+  var sv = {
+    retentionDays: cfg.retentionDays, matchThreshold: cfg.matchThreshold, handoverValidDays: cfg.handoverValidDays,
+    wCategory: cfg.weights.category, wDescription: cfg.weights.description, wLocation: cfg.weights.location, wTime: cfg.weights.time
+  };
+%>
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_settings') %></h1><p><%= t('settings_sub') %></p></div></div>
+<form method="post" action="/admin/settings" novalidate>
+  <%- csrfField() %>
+  <div class="grid-2">
+    <section class="panel">
+      <h2><%= t('settings_general') %></h2>
+      <%- include('/partials/field', { name: 'retentionDays', label: 'settings_retention', type: 'number', required: true, hint: 'settings_retention_hint', values: sv, errors: {} }) %>
+      <%- include('/partials/field', { name: 'handoverValidDays', label: 'settings_handover_days', type: 'number', required: true, hint: 'settings_handover_hint', values: sv, errors: {} }) %>
+    </section>
+    <section class="panel">
+      <h2><%= t('settings_matching') %></h2>
+      <p class="muted"><%= t('settings_matching_sub') %></p>
+      <%- include('/partials/field', { name: 'matchThreshold', label: 'settings_threshold', type: 'number', required: true, hint: 'settings_threshold_hint', values: sv, errors: {} }) %>
+      <div class="form-grid">
+        <%- include('/partials/field', { name: 'wCategory', label: 'factor_category', type: 'number', required: true, values: sv, errors: {} }) %>
+        <%- include('/partials/field', { name: 'wDescription', label: 'factor_description', type: 'number', required: true, values: sv, errors: {} }) %>
+        <%- include('/partials/field', { name: 'wLocation', label: 'factor_location', type: 'number', required: true, values: sv, errors: {} }) %>
+        <%- include('/partials/field', { name: 'wTime', label: 'factor_time', type: 'number', required: true, values: sv, errors: {} }) %>
+      </div>
+      <p class="hint"><%= t('settings_weights_note') %></p>
+    </section>
+  </div>
+  <div class="form-actions"><button class="btn btn-primary" type="submit"><%= t('save') %></button></div>
+</form>
+<%- include('/partials/bottom') %>

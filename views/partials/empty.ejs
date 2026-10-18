@@ -1,0 +1,11 @@
+<%
+  /* Empty state: an icon, a short heading, one sentence of help and, when there is something to do, one button.
+     Params: art (a symbol from partials/icons.ejs), heading, message, cta { href, label, secondary, reset }, live.
+     The names are not "icon" or "title" on purpose: those are already a template helper and a page value. */
+%>
+<div class="empty"<%- locals.live ? ' role="status"' : '' %>>
+  <span class="empty-art" aria-hidden="true"><%- icon(locals.art || 'search') %></span>
+  <strong><%= heading %></strong>
+  <% if (locals.message) { %><span class="empty-body"><%= message %></span><% } %>
+  <% if (locals.cta) { %><a class="btn <%= cta.secondary ? 'btn-secondary' : 'btn-primary' %> btn-sm" href="<%= cta.href %>"<%- cta.reset ? ' data-live-reset' : '' %>><%= cta.label %></a><% } %>
+</div>

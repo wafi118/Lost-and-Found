@@ -1,0 +1,31 @@
+<% var assets = { scripts: ['/js/live-filter.js'] }; %><%- include('/partials/top', assets) %>
+<div class="page-head"><div><h1><%= t('nav_all_cases') %></h1><p><%= t('records_sub') %></p></div></div>
+<section class="panel">
+  <form class="filters" method="get" action="/security/records" role="search" data-live-filter="#records-results" data-msg-error="<%= t('live_error') %>" data-msg-count="<%= t('browse_count') %>">
+    <div class="field">
+      <label for="status"><%= t('col_status') %></label>
+      <select class="select" id="status" name="status">
+        <option value=""><%= t('track_all_status') %></option>
+        <% statuses.forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= t('status_' + s) %></option><% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="type"><%= t('browse_type') %></label>
+      <select class="select" id="type" name="type">
+        <option value=""><%= t('browse_all_types') %></option>
+        <option value="lost" <%= filters.type === 'lost' ? 'selected' : '' %>><%= t('type_lost') %></option>
+        <option value="found" <%= filters.type === 'found' ? 'selected' : '' %>><%= t('type_found') %></option>
+      </select>
+    </div>
+    <div class="field field-grow">
+      <label for="q"><%= t('browse_search') %></label>
+      <input class="input" id="q" name="q" type="search" value="<%= filters.q %>" maxlength="60" placeholder="<%= t('sec_search_ph') %>">
+    </div>
+    <div class="field"><button class="btn btn-primary" type="submit"><%- icon('search') %><%= t('browse_apply') %></button></div>
+    <span class="visually-hidden" role="status" data-live-status></span>
+  </form>
+  <div id="records-results" class="results" aria-busy="false">
+    <%- include('/partials/list-results', { list: list, listBase: '/security/cases/', pagerBase: '/security/records', params: filters, progress: false, filtered: Boolean(filters.status || filters.type || filters.q), emptyKind: 'staff' }) %>
+  </div>
+</section>
+<%- include('/partials/bottom', assets) %>

@@ -1,0 +1,8 @@
+<%
+  /* Case list plus pager, for "My cases" and the review queue. Rendered inside the page and, for live
+     filtering, on its own (?partial=1). Params: list, listBase, pagerBase, params, progress, filtered, emptyKind. */
+%>
+<div data-count="<%= list.total %>">
+  <%- include('/partials/case-list', { rows: list.rows, base: listBase, progress: locals.progress, filtered: locals.filtered, emptyKind: locals.emptyKind, clearHref: pagerBase }) %>
+  <%- include('/partials/pager', { list: list, base: pagerBase, params: params }) %>
+</div>

@@ -1,0 +1,67 @@
+<%- include('/partials/top') %>
+<div class="page-head">
+  <div><h1><%= t('idr_detail_title') %></h1><p><%= t('idr_attempt', { n: attempt, max: maxAttempts }) %></p></div>
+  <a class="btn btn-secondary btn-sm" href="/admin/id-reviews"><%= t('idr_back') %></a>
+</div>
+<div class="layout-2">
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('idr_photo') %></h2></div>
+    <% if (proof.file) { %>
+      <div class="id-frame"><img src="/admin/id-reviews/<%= proof.id %>/image" alt="<%= t('idr_photo_alt') %>"></div>
+      <p class="hint"><%= t('idr_photo_note') %></p>
+    <% } else { %>
+      <%- include('/partials/empty', { art: 'image', heading: t('idr_photo_gone'), message: t('idr_photo_gone_body', { date: fmt.date(proof.purgedAt) }) }) %>
+    <% } %>
+  </section>
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('idr_details') %></h2></div>
+      <p class="muted"><%= t('idr_compare') %></p>
+      <dl class="kv">
+        <dt><%= t('f_name') %></dt><dd><%= applicant.name %></dd>
+        <dt><%= t('f_affiliation') %></dt><dd><%= applicant.affiliation ? t('aff_' + applicant.affiliation) : '—' %></dd>
+        <dt><%= t('f_university_id') %></dt><dd><%= applicant.universityId || '—' %></dd>
+        <dt><%= t('f_email') %></dt><dd><%= applicant.email %> <span class="chip <%= applicant.emailVerified ? 'chip-green' : 'chip-gray' %>"><%= applicant.emailVerified ? t('idr_email_ok') : t('admin_unverified') %></span></dd>
+        <dt><%= t('f_phone_optional') %></dt><dd><%= applicant.phone || '—' %></dd>
+        <dt><%= t('idr_sent') %></dt><dd><%= fmt.dateTime(proof.submittedAt) %></dd>
+        <dt><%= t('col_status') %></dt><dd><span class="chip chip-<%= { submitted: 'amber', approved: 'green', rejected: 'red' }[proof.status] %>"><%= t('idp_st_' + proof.status) %></span><% if (proof.final) { %> <span class="chip chip-gray"><%= t('idr_final') %></span><% } %></dd>
+        <% if (proof.status === 'rejected') { %>
+        <dt><%= t('idr_reason_label') %></dt><dd><%= t('id_reason_' + proof.rejectCode) %><% if (proof.rejectNote) { %> · <%= proof.rejectNote %><% } %></dd>
+        <% } %>
+        <% if (proof.reviewedAt) { %><dt><%= t('idr_decided') %></dt><dd><%= fmt.dateTime(proof.reviewedAt) %></dd><% } %>
+      </dl>
+    </section>
+
+    <% if (proof.status === 'submitted') { %>
+    <% if (!applicant.emailVerified) { %>
+      <p class="flash flash-info"><%- icon('info') %><span><%= t('idr_wait_email') %></span></p>
+    <% } else { %>
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('idr_approve_title') %></h2></div>
+      <form method="post" action="/admin/id-reviews/<%= proof.id %>/approve" novalidate>
+        <%- csrfField() %>
+        <div class="field"><div class="check">
+          <input type="checkbox" id="checked" name="checked">
+          <label for="checked"><%= t('idr_checked') %></label>
+        </div></div>
+        <button class="btn btn-primary" type="submit"><%= t('idr_approve_button') %></button>
+      </form>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('idr_reject_title') %></h2></div>
+      <form method="post" action="/admin/id-reviews/<%= proof.id %>/reject" novalidate>
+        <%- csrfField() %>
+        <%- include('/partials/select', { name: 'reason', label: 'idr_reason_label', required: true, blank: 'f_choose', options: reasons.map(function (r) { return { value: r, label: t('id_reason_' + r) }; }), values: {}, errors: {} }) %>
+        <%- include('/partials/field', { name: 'note', label: 'idr_note', maxlength: 200, hint: 'idr_note_hint', values: {}, errors: {} }) %>
+        <div class="field"><div class="check">
+          <input type="checkbox" id="permanent" name="permanent">
+          <label for="permanent"><%= t('idr_permanent') %></label>
+        </div><p class="hint"><%= t('idr_permanent_hint') %></p></div>
+        <button class="btn btn-danger" type="submit"><%= t('idr_reject_button') %></button>
+      </form>
+    </section>
+    <% } %>
+    <% } %>
+  </div>
+</div>
+<%- include('/partials/bottom') %>

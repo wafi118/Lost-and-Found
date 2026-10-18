@@ -1,0 +1,36 @@
+<%- include('/partials/top') %>
+<div class="page-head">
+  <div><h1><%= t('nav_inventory') %></h1><p><%= t('inv_sub') %></p></div>
+  <% if (canAct) { %><a class="btn btn-primary" href="/security/intake"><%- icon('plus') %><%= t('intake_title') %></a><% } %>
+</div>
+<section class="panel">
+  <form class="filters" method="get" action="/security/inventory" role="search">
+    <div class="field field-grow">
+      <label for="q"><%= t('browse_search') %></label>
+      <input class="input" id="q" name="q" type="search" value="<%= q %>" maxlength="60" placeholder="<%= t('sec_search_ph') %>">
+    </div>
+    <div class="field"><button class="btn btn-primary" type="submit"><%- icon('search') %><%= t('browse_apply') %></button></div>
+  </form>
+  <% if (!list.rows.length) { %>
+    <%- include('/partials/empty', { art: 'box', heading: t('list_empty_title'), message: t('list_empty_body'), cta: locals.canAct ? { href: '/security/intake', label: t('intake_title') } : null }) %>
+  <% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th><%= t('col_ref') %></th><th><%= t('col_item') %></th><th><%= t('item_slot') %></th><th><%= t('inv_received') %></th><th><%= t('col_status') %></th></tr></thead>
+      <tbody>
+        <% list.rows.forEach(function (c) { %>
+        <tr>
+          <td class="nowrap"><a class="mono" href="/security/cases/<%= c.ref %>"><%= c.ref %></a></td>
+          <td><a class="title" href="/security/cases/<%= c.ref %>"><%= c.title %></a><span class="sub"><%= nm(c.category) %> · <%= place(c.location) %></span></td>
+          <td class="nowrap"><%= c.storageSlot || '' %></td>
+          <td class="nowrap"><%= fmt.date(c.createdAt) %></td>
+          <td><%- include('/partials/chip', { kind: 'case', value: c.status }) %><% if (c.retentionFlaggedAt) { %> <span class="chip chip-amber"><%= t('flag_retention') %></span><% } %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+  <%- include('/partials/pager', { list: list, base: '/security/inventory', params: { q: q } }) %>
+</section>
+<%- include('/partials/bottom') %>

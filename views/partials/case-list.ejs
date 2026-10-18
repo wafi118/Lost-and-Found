@@ -1,0 +1,31 @@
+<%
+  /* Params: rows, base (link prefix), progress (show the small progress bar), filtered and clearHref (the
+     list is the result of filters), emptyKind ('mine' offers to report something). */
+  var showProgress = Boolean(locals.progress);
+%>
+<% if (!rows.length) { %>
+  <%
+    var emptyArgs = locals.filtered
+      ? { art: 'search', heading: t('empty_filtered_title'), message: t('empty_filtered_body'), cta: locals.clearHref ? { href: clearHref, label: t('empty_clear'), secondary: true, reset: true } : null }
+      : (locals.emptyKind === 'mine'
+        ? { art: 'list', heading: t('empty_mine_title'), message: t('empty_mine_body'), cta: { href: '/report', label: t('nav_report') } }
+        : { art: 'list', heading: t('list_empty_title'), message: t('list_empty_body'), cta: null });
+  %>
+  <%- include('/partials/empty', emptyArgs) %>
+<% } else { %>
+<div class="table-wrap">
+  <table class="table">
+    <thead><tr><th><%= t('col_ref') %></th><th><%= t('col_item') %></th><th><%= t('col_when') %></th><th><%= t('col_status') %></th></tr></thead>
+    <tbody>
+      <% rows.forEach(function (c) { %>
+      <tr>
+        <td class="nowrap"><span class="tag tag-<%= c.type %>"><%= t('type_' + c.type) %></span><br><a class="mono" href="<%= base %><%= c.ref %>"><%= c.ref %></a></td>
+        <td><a class="title" href="<%= base %><%= c.ref %>"><%= c.title %></a><span class="sub"><%= nm(c.category) %> · <%= place(c.location) %></span></td>
+        <td class="nowrap"><%= fmt.date(c.occurredAt) %></td>
+        <td><%- include('/partials/chip', { kind: 'case', value: c.status }) %><% if (c.retentionFlaggedAt) { %> <span class="chip chip-amber"><%= t('flag_retention') %></span><% } %><% if (showProgress) { %><br><%- include('/partials/status-progress', { prog: progressFor(c), compact: true }) %><% } %></td>
+      </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+<% } %>

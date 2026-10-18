@@ -1,0 +1,99 @@
+<%
+  var back = level === 'staff' ? '/security/queue' : (level === 'approver' ? '/approver' : '/track');
+  var nextKey = 'next_' + view.status + (['under_review', 'open'].indexOf(view.status) !== -1 ? '_' + view.type : '');
+  var canWithdraw = view.isMine && view.type === 'lost' && ['pending_approval', 'under_review', 'open', 'matched'].indexOf(view.status) !== -1;
+%>
+<%- include('/partials/top') %>
+<a class="back-link" href="<%= back %>"><%- icon('arrow-left') %><%= t('back') %></a>
+<div class="page-head">
+  <div>
+    <div class="cluster">
+      <span class="tag tag-<%= view.type %>"><%= t('type_' + view.type) %></span>
+      <%- include('/partials/chip', { kind: 'case', value: view.status }) %>
+      <span class="mono muted"><%= view.ref %></span>
+    </div>
+    <h1><%= view.titleMasked ? nm(category) : view.title %></h1>
+  </div>
+  <div class="cluster">
+    <% if (level === 'staff') { %><a class="btn btn-secondary" href="/security/cases/<%= view.ref %>"><%- icon('clipboard') %><%= t('item_open_console') %></a><% } %>
+    <% if (level === 'approver') { %><a class="btn btn-primary" href="/approver/cases/<%= view.ref %>"><%= t('item_open_decision') %></a><% } %>
+    <% if (canClaim) { %><a class="btn btn-primary" href="/items/<%= view.ref %>/claim"><%- icon('shield') %><%= t('item_claim') %></a><% } %>
+    <% if (myClaim) { %><a class="btn btn-secondary" href="/claims/<%= myClaim.id %>"><%= t('item_my_claim') %></a><% } %>
+    <% if (canWithdraw) { %>
+    <form method="post" action="/items/<%= view.ref %>/withdraw" data-confirm="<%= t('item_withdraw_confirm') %>"><%- csrfField() %>
+      <button class="btn btn-danger" type="submit"><%= t('item_withdraw') %></button>
+    </form>
+    <% } %>
+  </div>
+</div>
+
+<div class="layout-2">
+  <div class="stack">
+    <% if (view.isMine && view.status === 'rejected' && (view.reviewNote || (view.approval && view.approval.remarks))) { %>
+    <p class="flash flash-error"><%- icon('alert') %><span><strong><%= t('item_rejected_reason') %></strong> <%= view.reviewNote || view.approval.remarks %></span></p>
+    <% } %>
+    <% if (view.progress) { %>
+    <section class="panel" aria-labelledby="progress-h">
+      <h2 id="progress-h"><%= t('progress_title') %></h2>
+      <%- include('/partials/status-progress', { prog: view.progress }) %>
+    </section>
+    <% } %>
+    <% if (view.isMine) { %>
+    <section class="panel"><h2><%= t('item_next_title') %></h2><p><%= t(nextKey) %></p></section>
+    <% } %>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('item_details') %></h2></div>
+      <dl class="kv">
+        <dt><%= t('f_category') %></dt><dd><%= nm(category) %></dd>
+        <dt><%= t('item_where') %></dt><dd><%= place(location) %><% if (view.locationDetail) { %> · <%= view.locationDetail %><% } %></dd>
+        <dt><%= t('item_when') %></dt><dd><%= fmt.dateTime(view.occurredAt) %></dd>
+        <dt><%= t('item_reported') %></dt><dd><%= fmt.dateTime(view.createdAt) %></dd>
+        <% if (view.description !== undefined) { %><dt><%= t('f_description') %></dt><dd class="prose"><%= view.description %></dd><% } %>
+        <% if (view.closeReason) { %><dt><%= t('item_outcome') %></dt><dd><%= t('close_' + view.closeReason) %></dd><% } %>
+        <% if (level === 'staff' && view.storageSlot) { %><dt><%= t('item_slot') %></dt><dd><%= view.storageSlot %></dd><% } %>
+      </dl>
+      <% if (view.photo) { %><img class="item-photo" src="/uploads/<%= view.photo %>" alt="<%= t('item_photo_alt') %>"><% } %>
+      <% if (view.titleMasked) { %><p class="hint"><%- icon('lock', 'icon-sm') %> <%= t('item_masked_note') %></p><% } %>
+      <% if (level === 'viewer') { %><p class="hint"><%- icon('lock', 'icon-sm') %> <%= t('item_viewer_note') %></p><% } %>
+    </section>
+
+    <% if (matches.length) { %>
+    <section class="stack-sm">
+      <h2><%= t('item_matches') %></h2>
+      <% matches.forEach(function (m) { %><%- include('/partials/match-card', { m: m, staff: level === 'staff', canAct: canAct }) %><% }) %>
+    </section>
+    <% } %>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <h2><%= t('item_timeline') %></h2>
+      <%- include('/partials/timeline', { events: events }) %>
+    </section>
+
+    <% if ((level === 'staff' || level === 'approver') && (reporter || view.finder)) { %>
+    <section class="panel">
+      <h2><%= view.type === 'found' ? t('item_finder') : t('item_reporter') %></h2>
+      <dl class="kv">
+        <% if (view.finder) { %>
+          <dt><%= t('f_name') %></dt><dd><%= view.finder.name %></dd>
+          <% if (view.finder.contact) { %><dt><%= t('intake_contact') %></dt><dd><%= view.finder.contact %></dd><% } %>
+          <% if (view.finder.universityId) { %><dt><%= t('f_university_id') %></dt><dd><%= view.finder.universityId %></dd><% } %>
+          <dt><%= t('intake_recorded_by') %></dt><dd><%= view.finder.recordedByName %></dd>
+        <% } else if (reporter) { %>
+          <dt><%= t('f_name') %></dt><dd><%= reporter.name %></dd>
+          <dt><%= t('f_email') %></dt><dd><%= reporter.email %></dd>
+          <% if (reporter.universityId) { %><dt><%= t('f_university_id') %></dt><dd><%= reporter.universityId %></dd><% } %>
+          <% if (reporter.phone) { %><dt><%= t('f_phone') %></dt><dd><%= reporter.phone %></dd><% } %>
+        <% } %>
+      </dl>
+    </section>
+    <% } %>
+
+    <% if (level === 'owner' || level === 'staff') { %>
+    <%- include('/partials/case-thread', { view: view, notes: notes, updates: updates, canNote: false, canUpdate: canUpdate, canDeleteNote: canAct, updateBase: '/items/' + view.ref + '/updates' }) %>
+    <% } %>
+  </div>
+</div>
+<%- include('/partials/bottom') %>

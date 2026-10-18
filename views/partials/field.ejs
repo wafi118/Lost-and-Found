@@ -1,0 +1,29 @@
+<%
+  var fid = 'f-' + name;
+  var err = locals.errors && errors[name];
+  var kind = locals.type || 'text';
+  var val = (locals.values && values[name] !== undefined && values[name] !== null && kind !== 'password') ? values[name] : '';
+  var describedBy = [];
+  if (locals.hint) describedBy.push('h-' + name);
+  if (err) describedBy.push('e-' + name);
+%>
+<div class="field<%= err ? ' has-error' : '' %>">
+  <label for="<%= fid %>"><%= t(label) %><% if (locals.required) { %><span class="req" aria-hidden="true">*</span><% } %></label>
+  <% if (kind === 'password') { %><div class="pw-wrap"><% } %>
+  <input class="input" id="<%= fid %>" name="<%= name %>" type="<%= kind %>" value="<%= val %>"
+    <% if (locals.autocomplete) { %>autocomplete="<%= autocomplete %>"<% } %>
+    <% if (locals.required) { %>required<% } %>
+    <% if (locals.maxlength) { %>maxlength="<%= maxlength %>"<% } %>
+    <% if (locals.minlength) { %>minlength="<%= minlength %>"<% } %>
+    <% if (locals.inputmode) { %>inputmode="<%= inputmode %>"<% } %>
+    <% if (locals.placeholder) { %>placeholder="<%= t(placeholder) %>"<% } %>
+    <% if (locals.max) { %>max="<%= max %>"<% } %>
+    <% if (locals.autofocus) { %>autofocus<% } %>
+    <% if (err) { %>aria-invalid="true"<% } %>
+    <% if (describedBy.length) { %>aria-describedby="<%= describedBy.join(' ') %>"<% } %>>
+  <% if (kind === 'password') { %>
+    <button type="button" class="pw-toggle" data-pw-toggle="<%= fid %>" data-show="<%= t('pw_show') %>" data-hide="<%= t('pw_hide') %>"><%= t('pw_show') %></button></div>
+  <% } %>
+  <% if (locals.hint) { %><p class="hint" id="h-<%= name %>"><%= t(hint, locals.hintParams) %></p><% } %>
+  <% if (err) { %><p class="error-text" id="e-<%= name %>"><%- icon('alert') %><span><%= t(err.key, err.params) %></span></p><% } %>
+</div>

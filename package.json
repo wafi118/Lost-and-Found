@@ -1,0 +1,46 @@
+{
+  "name": "safefind-bup",
+  "version": "1.7.0",
+  "private": true,
+  "description": "SafeFind BUP - Intelligent Lost & Found Case Management System",
+  "main": "app.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "test": "node --test",
+    "smoke": "node scripts/smoke.js",
+    "browser-check": "node scripts/browser-check.js"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.0.0",
+    "@fontsource/noto-sans-bengali": "^5.0.0",
+    "@fontsource/poppins": "^5.0.0",
+    "bcrypt": "^6.0.0",
+    "chart.js": "^4.4.0",
+    "cloudinary": "^2.11.0",
+    "connect-pg-simple": "^9.0.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "express-session": "^1.18.0",
+    "helmet": "^7.1.0",
+    "jsqr": "^1.4.0",
+    "leaflet": "^1.9.4",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.0",
+    "nodemailer": "^10.0.13",
+    "pg": "^8.12.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "nodemon": "^3.1.4",
+    "socket.io-client": "^4.8.4"
+  }
+}

@@ -1,0 +1,29 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_claims') %></h1><p><%= t('claims_sub') %></p></div></div>
+<div class="stack">
+  <nav class="segmented" aria-label="<%= t('claims_tabs') %>">
+    <% tabs.forEach(function (k) { %><a href="/security/claims?tab=<%= k %>" <%- tab === k ? 'aria-current="true"' : '' %>><%= t('claims_tab_' + k) %></a><% }) %>
+  </nav>
+  <section class="panel">
+    <% if (!rows.length) { %>
+      <%- include('/partials/empty', { art: 'shield', heading: t('list_empty_title'), message: t('claims_empty'), cta: { href: '/security/inventory', label: t('nav_inventory'), secondary: true } }) %>
+    <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th><%= t('col_item') %></th><th><%= t('claims_claimant') %></th><th><%= t('claim_submitted_on') %></th><th><%= t('col_status') %></th></tr></thead>
+        <tbody>
+          <% rows.forEach(function (c) { %>
+          <tr>
+            <td><a class="title" href="/security/claims/<%= c.id %>"><%= c.found.title || nm(c.found.category) %></a><span class="sub mono"><%= c.found.ref %></span></td>
+            <td><%= c.claimant ? c.claimant.name : '' %><span class="sub"><%= c.claimant ? c.claimant.universityId || '' : '' %></span></td>
+            <td class="nowrap"><%= fmt.date(c.createdAt) %></td>
+            <td><%- include('/partials/chip', { kind: 'claim', value: c.status }) %></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </section>
+</div>
+<%- include('/partials/bottom') %>

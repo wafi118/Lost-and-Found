@@ -1,0 +1,5 @@
+<% if (locals.formError) { %>
+  <div class="form-error" role="alert"><%= t(formError.key, formError.params) %></div>
+<% } else if (locals.errors && Object.keys(errors).length) { %>
+  <div class="form-error" role="alert"><%= t('err_fix_fields') %></div>
+<% } %>

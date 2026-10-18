@@ -1,0 +1,45 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_categories') %></h1><p><%= t('cat_sub') %></p></div></div>
+<div class="stack">
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('cat_add') %></h2></div>
+    <form class="edit-row" method="post" action="/admin/categories" novalidate>
+      <%- csrfField() %>
+      <div class="edit-fields">
+        <div class="field"><label for="new-name"><%= t('cat_name') %></label><input class="input" id="new-name" name="name" required maxlength="60"></div>
+        <div class="field"><label for="new-nameBn"><%= t('cat_name_bn') %></label><input class="input" id="new-nameBn" name="nameBn" maxlength="60"></div>
+      </div>
+      <div class="checks">
+        <div class="check"><input type="checkbox" id="new-sensitive" name="sensitive"><label for="new-sensitive"><%= t('cat_sensitive') %></label></div>
+        <div class="check"><input type="checkbox" id="new-high" name="highValue"><label for="new-high"><%= t('cat_high') %></label></div>
+        <div class="check"><input type="checkbox" id="new-appr" name="requiresApproval"><label for="new-appr"><%= t('cat_approval') %></label></div>
+        <button class="btn btn-primary" type="submit"><%= t('cat_add_button') %></button>
+      </div>
+    </form>
+    <ul class="hint-list">
+      <li class="hint"><strong><%= t('cat_sensitive') %>:</strong> <%= t('cat_sensitive_hint') %></li>
+      <li class="hint"><strong><%= t('cat_high') %>:</strong> <%= t('cat_high_hint') %></li>
+      <li class="hint"><strong><%= t('cat_approval') %>:</strong> <%= t('cat_approval_hint') %></li>
+    </ul>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('cat_existing') %></h2></div>
+    <% rows.forEach(function (c) { %>
+    <form class="edit-row" method="post" action="/admin/categories/<%= c.id %>" novalidate>
+      <%- csrfField() %>
+      <div class="edit-fields">
+        <div class="field"><label for="c<%= c.id %>-name"><%= t('cat_name') %></label><input class="input" id="c<%= c.id %>-name" name="name" required maxlength="60" value="<%= c.name %>"></div>
+        <div class="field"><label for="c<%= c.id %>-nameBn"><%= t('cat_name_bn') %></label><input class="input" id="c<%= c.id %>-nameBn" name="nameBn" maxlength="60" value="<%= c.nameBn %>"></div>
+      </div>
+      <div class="checks">
+        <div class="check"><input type="checkbox" id="c<%= c.id %>-s" name="sensitive" <%= c.sensitive ? 'checked' : '' %>><label for="c<%= c.id %>-s"><%= t('cat_sensitive') %></label></div>
+        <div class="check"><input type="checkbox" id="c<%= c.id %>-h" name="highValue" <%= c.highValue ? 'checked' : '' %>><label for="c<%= c.id %>-h"><%= t('cat_high') %></label></div>
+        <div class="check"><input type="checkbox" id="c<%= c.id %>-a" name="requiresApproval" <%= c.requiresApproval ? 'checked' : '' %>><label for="c<%= c.id %>-a"><%= t('cat_approval') %></label></div>
+        <div class="check"><input type="checkbox" id="c<%= c.id %>-on" name="active" <%= c.active ? 'checked' : '' %>><label for="c<%= c.id %>-on"><%= t('cat_active') %></label></div>
+        <button class="btn btn-secondary btn-sm" type="submit"><%= t('save') %></button>
+      </div>
+    </form>
+    <% }) %>
+  </section>
+</div>
+<%- include('/partials/bottom') %>

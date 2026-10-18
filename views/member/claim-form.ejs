@@ -1,0 +1,32 @@
+<% var assets = { scripts: ['/js/dropzone.js'] }; %><%- include('/partials/top', assets) %>
+<a class="back-link" href="/items/<%= foundRef %>"><%- icon('arrow-left') %><%= t('back') %></a>
+<div class="page-head"><div><h1><%= t('claim_form_title') %></h1><p><%= t('claim_form_sub') %></p></div></div>
+<div class="layout-2">
+  <div class="panel">
+    <%- include('/partials/form-errors') %>
+    <form method="post" action="/items/<%= foundRef %>/claim?_csrf=<%= csrfToken() %>" enctype="multipart/form-data" novalidate>
+      <% if (lostOptions.length) { %>
+        <%- include('/partials/select', { name: 'lostRef', label: 'f_claim_lost', blank: 'claim_no_lost', hint: 'f_claim_lost_hint', options: lostOptions.map(function (c) { return { value: c.ref, label: c.ref + ' · ' + c.title }; }) }) %>
+      <% } %>
+      <%- include('/partials/textarea', { name: 'statement', label: 'f_claim_statement', required: true, rows: 6, maxlength: 800, hint: 'f_claim_statement_hint' }) %>
+      <% if (tier2) { %><p class="flash flash-info"><%- icon('info') %><span><%= t('claim_tier2_note') %></span></p><% } %>
+      <%- include('/partials/textarea', { name: 'proofNote', label: 'f_proof_note', rows: 3, maxlength: 500 }) %>
+      <%- include('/partials/dropzone', { name: 'proof', label: 'f_proof', hint: 'f_proof_hint' }) %>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit"><%= t('claim_submit') %></button>
+        <a class="btn btn-secondary" href="/items/<%= foundRef %>"><%= t('cancel') %></a>
+      </div>
+    </form>
+  </div>
+  <aside class="panel">
+    <h2><%= t('claim_item_title') %></h2>
+    <p><span class="tag tag-found"><%= t('type_found') %></span> <span class="mono muted"><%= card.ref %></span></p>
+    <dl class="kv">
+      <dt><%= t('f_category') %></dt><dd><%= card.categoryName %></dd>
+      <dt><%= t('item_where') %></dt><dd><%= card.building %></dd>
+      <dt><%= t('item_when') %></dt><dd><%= fmt.date(card.occurredAt) %></dd>
+    </dl>
+    <p class="hint"><%- icon('lock', 'icon-sm') %> <%= t('claim_private_note') %></p>
+  </aside>
+</div>
+<%- include('/partials/bottom', assets) %>

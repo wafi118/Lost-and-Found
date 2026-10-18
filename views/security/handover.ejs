@@ -1,0 +1,78 @@
+<% var assets = { scripts: canAct ? ['/vendor/jsqr.js', '/js/handover-scanner.js'] : [] }; %><%- include('/partials/top', assets) %>
+<div class="page-head">
+  <div><h1><%= t('handover_title') %></h1><p><%= t('handover_sub') %></p></div>
+  <a class="btn btn-secondary" href="/security/handover/history"><%= t('handover_history_link') %></a>
+</div>
+<div class="layout-2">
+  <div class="stack">
+    <% if (canAct) { %>
+    <section class="panel">
+      <h2><%= t('handover_scan_title') %></h2>
+      <%- include('/partials/form-errors') %>
+      <div class="scanner" data-scanner hidden
+        data-msg-denied="<%= t('handover_cam_denied') %>" data-msg-unsupported="<%= t('handover_cam_unsupported') %>" data-msg-starting="<%= t('handover_cam_starting') %>">
+        <video playsinline muted></video>
+        <div class="frame"></div>
+        <div class="scanner-msg" data-scanner-msg hidden></div>
+      </div>
+      <div class="cluster">
+        <button type="button" class="btn btn-secondary" data-scanner-start hidden><%- icon('camera') %><%= t('handover_cam_start') %></button>
+        <button type="button" class="btn btn-ghost" data-scanner-stop hidden><%= t('handover_cam_stop') %></button>
+      </div>
+      <form method="post" action="/security/handover/lookup" novalidate>
+        <%- csrfField() %>
+        <div class="field<%= errors && errors.code ? ' has-error' : '' %>">
+          <label for="f-code"><%= t('handover_code') %></label>
+          <input class="input" id="f-code" name="code" type="text" value="<%= preview ? '' : code %>" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="600" required aria-describedby="h-code">
+          <p class="hint" id="h-code"><%= t('handover_code_hint') %></p>
+          <% if (errors && errors.code) { %><p class="error-text"><%- icon('alert') %><span><%= t(errors.code.key, errors.code.params) %></span></p><% } %>
+        </div>
+        <button class="btn btn-primary" type="submit"><%- icon('search') %><%= t('handover_lookup') %></button>
+      </form>
+    </section>
+
+    <% if (preview) { %>
+    <section class="panel">
+      <h2><%= t('handover_confirm_title') %></h2>
+      <div class="pair">
+        <div>
+          <h4><%= t('claim_item_private') %></h4>
+          <p><strong><%= preview.foundPrivate.title %></strong><br><span class="mono small"><%= preview.found.ref %></span></p>
+          <p class="small muted"><%= nm(preview.found.category) %> · <%= place(preview.found.location) %></p>
+          <% if (preview.foundPrivate.storageSlot) { %><p class="small"><strong><%= t('item_slot') %>:</strong> <%= preview.foundPrivate.storageSlot %></p><% } %>
+        </div>
+        <div>
+          <h4><%= t('claims_claimant') %></h4>
+          <p><strong><%= preview.claimant.name %></strong></p>
+          <p class="small muted"><%= preview.claimant.universityId || '' %><br><%= preview.claimant.email %></p>
+        </div>
+      </div>
+      <form method="post" action="/security/handover/complete" novalidate>
+        <%- csrfField() %>
+        <input type="hidden" name="code" value="<%= code %>">
+        <div class="field<%= errors && errors.idChecked ? ' has-error' : '' %>">
+          <div class="check">
+            <input type="checkbox" id="idChecked" name="idChecked" <% if (errors && errors.idChecked) { %>aria-invalid="true"<% } %>>
+            <label for="idChecked"><%= t('handover_id_checked', { name: preview.claimant.name }) %></label>
+          </div>
+          <% if (errors && errors.idChecked) { %><p class="error-text"><%- icon('alert') %><span><%= t(errors.idChecked.key) %></span></p><% } %>
+        </div>
+        <button class="btn btn-primary" type="submit"><%= t('handover_confirm') %></button>
+      </form>
+    </section>
+    <% } %>
+    <% } %>
+  </div>
+
+  <section class="panel">
+    <h2><%= t('sec_handovers_pending') %></h2>
+    <% if (!pending.length) { %><p class="muted"><%= t('sec_none') %></p><% } else { %>
+    <ul class="list">
+      <% pending.forEach(function (p) { %>
+      <li><a class="row-link" href="/security/claims/<%= p.claim.id %>"><span class="title"><%= p.found.title %><span class="small muted block"><%= p.found.ref %> · <%= t('sec_expires', { date: fmt.date(p.handover.expiresAt) }) %></span></span><% if (p.expired) { %><span class="chip chip-red"><%= t('sec_expired') %></span><% } %></a></li>
+      <% }) %>
+    </ul>
+    <% } %>
+  </section>
+</div>
+<%- include('/partials/bottom', assets) %>

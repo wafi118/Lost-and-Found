@@ -1,0 +1,19 @@
+<%
+  /* The details both ways of registering ask for. Params: emailLabel, emailHint, emailHintParams (locale keys and values). */
+%>
+<div class="span-2"><%- include('/partials/field', { name: 'name', label: 'f_name', autocomplete: 'name', required: true, maxlength: 80 }) %></div>
+<div class="span-2"><%- include('/partials/field', { name: 'email', label: emailLabel, type: 'email', autocomplete: 'email', required: true, inputmode: 'email', hint: emailHint, hintParams: emailHintParams }) %></div>
+<fieldset class="span-2">
+  <legend><%= t('f_affiliation') %><span class="req" aria-hidden="true">*</span></legend>
+  <div class="choice">
+    <input type="radio" id="aff-student" name="affiliation" value="student" <%= (values.affiliation || 'student') === 'student' ? 'checked' : '' %>>
+    <label for="aff-student"><%= t('aff_student') %></label>
+    <input type="radio" id="aff-staff" name="affiliation" value="staff" <%= values.affiliation === 'staff' ? 'checked' : '' %>>
+    <label for="aff-staff"><%= t('aff_staff') %></label>
+  </div>
+  <% if (errors.affiliation) { %><p class="error-text"><%- icon('alert') %><span><%= t(errors.affiliation.key, errors.affiliation.params) %></span></p><% } %>
+</fieldset>
+<%- include('/partials/field', { name: 'universityId', label: 'f_university_id', required: true, maxlength: 24, hint: 'f_university_id_hint', autocomplete: 'off' }) %>
+<%- include('/partials/field', { name: 'phone', label: 'f_phone_optional', type: 'tel', autocomplete: 'tel', inputmode: 'tel', maxlength: 20 }) %>
+<%- include('/partials/field', { name: 'password', label: 'f_password', type: 'password', autocomplete: 'new-password', required: true, hint: 'f_password_hint' }) %>
+<%- include('/partials/field', { name: 'confirm', label: 'f_password_confirm', type: 'password', autocomplete: 'new-password', required: true }) %>

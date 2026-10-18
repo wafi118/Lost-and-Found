@@ -1,0 +1,96 @@
+<%
+  var assets = { scripts: ['/js/dropzone.js', '/js/wizard.js', '/js/report-form.js'] };
+  // When the form comes back with errors, open the step that holds the first one.
+  var STEP_OF = { type: 1, title: 1, categoryId: 1, description: 1, locationId: 2, locationDetail: 2, occurredAt: 2 };
+  var failedFields = Object.keys(locals.errors || {});
+  var startStep = 1;
+  if (failedFields.length) {
+    startStep = Math.min.apply(null, failedFields.map(function (k) { return STEP_OF[k] || 1; }));
+  } else if (locals.formError) {
+    var failKey = String(formError.key || '');
+    startStep = /UPLOAD/.test(failKey) ? 3 : (/WHEN|LOCATION/.test(failKey) ? 2 : 1);
+  }
+%><%- include('/partials/top', assets) %>
+<div class="page-head">
+  <div><h1><%= t('report_title') %></h1><p><%= t('report_intro') %></p></div>
+</div>
+<div class="layout-2">
+  <div class="panel">
+    <%- include('/partials/form-errors') %>
+    <form method="post" action="/report?_csrf=<%= csrfToken() %>" enctype="multipart/form-data" novalidate data-report-form data-wizard data-start-step="<%= startStep %>"
+      data-msg-required="<%= t('err_required') %>" data-msg-too-short="<%= t('err_too_short') %>" data-msg-future="<%= t('svc_WHEN_FUTURE') %>" data-msg-invalid="<%= t('err_datetime') %>">
+
+      <%# Step list: shown by wizard.js. Without JavaScript the three parts below are simply one long form. %>
+      <ol class="wizard-steps" aria-label="<%= t('wizard_label') %>" data-wizard-steps hidden>
+        <% [1, 2, 3].forEach(function (n) { %>
+        <li class="wizard-step" data-step-indicator>
+          <button type="button" class="wizard-tab" data-step-goto="<%= n - 1 %>"><span class="wizard-num" aria-hidden="true"><%= n %></span><span class="wizard-name"><%= t('wizard_step_' + n) %></span></button>
+        </li>
+        <% }) %>
+      </ol>
+      <p class="visually-hidden" role="status" data-wizard-status data-template="<%= t('wizard_status') %>"></p>
+
+      <div class="wizard-panel" data-step data-title="<%= t('wizard_step_1') %>" aria-labelledby="wiz-h1">
+        <h2 class="wizard-heading" id="wiz-h1" tabindex="-1" data-step-heading><%= t('wizard_step_1') %></h2>
+        <fieldset>
+          <legend><%= t('report_type') %><span class="req" aria-hidden="true">*</span></legend>
+          <div class="choice">
+            <input type="radio" id="type-lost" name="type" value="lost" <%= type === 'lost' ? 'checked' : '' %>>
+            <label for="type-lost"><%= t('report_type_lost') %><small><%= t('report_type_lost_hint') %></small></label>
+            <input type="radio" id="type-found" name="type" value="found" <%= type === 'found' ? 'checked' : '' %>>
+            <label for="type-found"><%= t('report_type_found') %><small><%= t('report_type_found_hint') %></small></label>
+          </div>
+        </fieldset>
+        <div class="form-grid">
+          <div class="span-2"><%- include('/partials/field', { name: 'title', label: 'f_title', required: true, maxlength: 80, minlength: 3, hint: 'f_title_hint' }) %></div>
+          <div class="span-2"><%- include('/partials/select', { name: 'categoryId', label: 'f_category', required: true, blank: 'f_choose', options: categories.map(function (c) { return { value: c.id, label: nm(c), approval: c.requiresApproval }; }) }) %></div>
+          <div class="span-2"><p class="flash flash-info" id="approval-hint" hidden><%- icon('info') %><span><%= t('report_approval_hint') %></span></p></div>
+          <div class="span-2"><%- include('/partials/textarea', { name: 'description', label: 'f_description', required: true, rows: 5, maxlength: 1000, minlength: 15, hint: 'f_description_hint' }) %></div>
+        </div>
+      </div>
+
+      <div class="wizard-panel" data-step data-title="<%= t('wizard_step_2') %>" aria-labelledby="wiz-h2">
+        <h2 class="wizard-heading" id="wiz-h2" tabindex="-1" data-step-heading><%= t('wizard_step_2') %></h2>
+        <div class="form-grid">
+          <%- include('/partials/select', { name: 'locationId', label: 'f_location', required: true, blank: 'f_choose', options: locations.map(function (l) { return { value: l.id, label: place(l) }; }) }) %>
+          <%- include('/partials/field', { name: 'occurredAt', label: 'f_occurred', type: 'datetime-local', required: true, max: nowInput(), hint: 'f_occurred_hint' }) %>
+          <div class="span-2"><%- include('/partials/field', { name: 'locationDetail', label: 'f_location_detail', maxlength: 200, hint: 'f_location_detail_hint' }) %></div>
+        </div>
+      </div>
+
+      <div class="wizard-panel" data-step data-title="<%= t('wizard_step_3') %>" aria-labelledby="wiz-h3">
+        <h2 class="wizard-heading" id="wiz-h3" tabindex="-1" data-step-heading><%= t('wizard_step_3') %></h2>
+        <%- include('/partials/dropzone', { name: 'photo', label: 'f_photo', hint: 'f_photo_hint' }) %>
+        <section class="wizard-review" data-review hidden aria-labelledby="wiz-review-h">
+          <h3 id="wiz-review-h"><%= t('wizard_review') %></h3>
+          <dl class="kv">
+            <dt><%= t('browse_type') %></dt><dd data-sum-radio="type"></dd>
+            <dt><%= t('f_title') %></dt><dd data-sum="f-title"></dd>
+            <dt><%= t('f_category') %></dt><dd data-sum="f-categoryId"></dd>
+            <dt><%= t('f_location') %></dt><dd data-sum="f-locationId"></dd>
+            <dt><%= t('f_occurred') %></dt><dd data-sum="f-occurredAt"></dd>
+            <dt><%= t('f_photo') %></dt><dd data-sum-file="f-photo" data-empty="<%= t('wizard_no_photo') %>"></dd>
+          </dl>
+          <p class="hint"><%= t('wizard_review_hint') %></p>
+        </section>
+      </div>
+
+      <div class="form-actions wizard-actions">
+        <button class="btn btn-secondary" type="button" data-wizard-prev hidden><%- icon('arrow-left') %><%= t('back') %></button>
+        <button class="btn btn-primary" type="button" data-wizard-next hidden><%= t('wizard_next') %><%- icon('arrow-right') %></button>
+        <%# visible by default so the form still submits without JavaScript; wizard.js shows it on the last step only %>
+        <button class="btn btn-primary" type="submit" data-wizard-submit><%= t('report_submit') %></button>
+        <a class="btn btn-secondary" href="/track"><%= t('cancel') %></a>
+      </div>
+    </form>
+  </div>
+  <aside class="panel">
+    <h2><%= t('report_side_title') %></h2>
+    <ul class="list">
+      <li><%= t('report_side_1') %></li>
+      <li><%= t('report_side_2') %></li>
+      <li><%= t('report_side_3') %></li>
+    </ul>
+  </aside>
+</div>
+<%- include('/partials/bottom', assets) %>

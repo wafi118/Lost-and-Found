@@ -1,0 +1,35 @@
+<%
+  var assets = { shell: 'auth', wide: true, scripts: ['/js/dropzone.js'] };
+  var retry = locals.formError || Object.keys(locals.errors || {}).length > 0;
+%><%- include('/partials/top', assets) %>
+<div class="auth-card wide">
+  <h1><%= t('auth_register_id_title') %></h1>
+  <%- include('/partials/register-tabs', { current: 'id' }) %>
+  <p class="sub"><%= t('auth_register_id_sub') %></p>
+  <ol class="plain-steps">
+    <li><%= t('reg_id_step1') %></li>
+    <li><%= t('reg_id_step2') %></li>
+    <li><%= t('reg_id_step3') %></li>
+  </ol>
+  <%- include('/partials/form-errors') %>
+  <form method="post" action="/auth/register/id-card?_csrf=<%= csrfToken() %>" enctype="multipart/form-data" novalidate>
+    <div class="form-grid">
+      <%- include('/partials/register-fields', { emailLabel: 'f_email_any', emailHint: 'f_email_any_hint', emailHintParams: {} }) %>
+      <div class="span-2">
+        <%- include('/partials/dropzone', { name: 'idcard', label: 'f_idcard', hint: 'f_idcard_hint', required: true }) %>
+        <% if (retry) { %><p class="hint"><%= t('reg_id_choose_again') %></p><% } %>
+        <p class="note-box"><%- icon('info') %><span><%= idCard.keepDays > 0 ? t('reg_id_privacy', { days: idCard.keepDays }) : t('reg_id_privacy_now') %></span></p>
+      </div>
+    </div>
+    <div class="field <%= errors.attest ? 'has-error' : '' %>">
+      <div class="check">
+        <input type="checkbox" id="attest" name="attest" <%= values.attest ? 'checked' : '' %> <% if (errors.attest) { %>aria-invalid="true" aria-describedby="e-attest"<% } %>>
+        <label for="attest"><%= t('f_attest_id') %></label>
+      </div>
+      <% if (errors.attest) { %><p class="error-text" id="e-attest"><%- icon('alert') %><span><%= t(errors.attest.key) %></span></p><% } %>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit"><%= t('reg_id_submit') %></button>
+  </form>
+  <div class="auth-links"><span class="muted"><%= t('auth_have_account') %> <a href="/auth/login"><%= t('nav_signin') %></a></span></div>
+</div>
+<%- include('/partials/bottom', assets) %>

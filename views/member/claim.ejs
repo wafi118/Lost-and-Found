@@ -1,0 +1,76 @@
+<%
+  var isOpen = ['submitted', 'proof_requested', 'verified'].indexOf(claim.status) !== -1;
+  var request = null;
+  claim.events.forEach(function (e) { if (e.key === 'cev_proof_requested') request = e; });
+  var reason = claim.status === 'rejected' && claim.verification && claim.verification.note && claim.verification.by !== claim.userId ? claim.verification.note : '';
+%>
+<% var assets = { scripts: ['/js/dropzone.js'] }; %><%- include('/partials/top', assets) %>
+<a class="back-link" href="/claims"><%- icon('arrow-left') %><%= t('nav_my_claims') %></a>
+<div class="page-head">
+  <div>
+    <div class="cluster"><%- include('/partials/chip', { kind: 'claim', value: claim.status }) %><span class="mono muted"><%= claim.found.ref %></span></div>
+    <h1><%= claim.found.title || nm(claim.found.category) %></h1>
+  </div>
+  <% if (isOpen) { %>
+  <form method="post" action="/claims/<%= claim.id %>/withdraw" data-confirm="<%= t('claim_withdraw_confirm') %>"><%- csrfField() %>
+    <button class="btn btn-danger" type="submit"><%= t('claim_withdraw') %></button>
+  </form>
+  <% } %>
+</div>
+
+<div class="layout-2">
+  <div class="stack">
+    <% if (claim.status === 'proof_requested') { %>
+    <section class="panel">
+      <h2><%= t('claim_proof_needed') %></h2>
+      <% if (request && request.params && request.params.note) { %><p class="prose"><%= request.params.note %></p><% } %>
+      <form method="post" action="/claims/<%= claim.id %>/proof?_csrf=<%= csrfToken() %>" enctype="multipart/form-data" novalidate>
+        <%- include('/partials/textarea', { name: 'proofNote', label: 'f_proof_note', rows: 3, maxlength: 500, values: {}, errors: {} }) %>
+        <%- include('/partials/dropzone', { name: 'proof', label: 'f_proof', hint: 'f_proof_hint', required: true }) %>
+        <button class="btn btn-primary" type="submit"><%= t('claim_proof_send') %></button>
+      </form>
+    </section>
+    <% } %>
+
+    <% if (claim.status === 'verified') { %>
+    <section class="panel">
+      <h2><%= t('claim_ready_title') %></h2>
+      <p><%= t('claim_ready_body') %></p>
+      <% if (handover && !handover.expired) { %>
+      <div class="qr-box">
+        <img src="/claims/<%= claim.id %>/qr.png" alt="<%= t('claim_qr_alt') %>" width="260" height="260">
+        <p class="small muted"><%= t('claim_code_label') %></p>
+        <p class="code-big"><%= handover.code %></p>
+        <p class="small muted"><%= t('claim_valid_until', { date: fmt.dateTime(handover.expiresAt) }) %></p>
+      </div>
+      <p class="hint"><%= t('claim_bring_id') %></p>
+      <% } else { %>
+      <p class="flash flash-warn"><%- icon('alert') %><span><%= t('claim_qr_expired') %></span></p>
+      <% } %>
+    </section>
+    <% } %>
+
+    <% if (claim.status === 'rejected' && reason) { %>
+    <section class="panel"><h2><%= t('claim_rejected_title') %></h2><p class="prose"><%= reason %></p></section>
+    <% } %>
+    <% if (claim.status === 'completed') { %>
+    <section class="panel"><h2><%= t('claim_done_title') %></h2><p><%= t('claim_done_body') %></p></section>
+    <% } %>
+
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('claim_yours') %></h2></div>
+      <dl class="kv">
+        <dt><%= t('claim_submitted_on') %></dt><dd><%= fmt.dateTime(claim.createdAt) %></dd>
+        <% if (claim.lost) { %><dt><%= t('claim_linked_lost') %></dt><dd><a href="/items/<%= claim.lost.ref %>"><%= claim.lost.ref %></a> · <%= claim.lost.title %></dd><% } %>
+        <dt><%= t('f_claim_statement') %></dt><dd class="prose"><%= claim.statement %></dd>
+        <% if (claim.proofNote) { %><dt><%= t('f_proof_note') %></dt><dd class="prose"><%= claim.proofNote %></dd><% } %>
+        <% if (claim.proof && claim.proof.file) { %><dt><%= t('f_proof') %></dt><dd><img class="item-photo" src="/uploads/<%= claim.proof.file %>" alt="<%= t('f_proof') %>"></dd><% } %>
+      </dl>
+    </section>
+  </div>
+  <aside class="panel">
+    <h2><%= t('item_timeline') %></h2>
+    <%- include('/partials/timeline', { events: claim.events }) %>
+  </aside>
+</div>
+<%- include('/partials/bottom', assets) %>

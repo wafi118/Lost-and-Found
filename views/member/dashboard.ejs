@@ -1,0 +1,48 @@
+<%- include('/partials/top') %>
+<div class="page-head">
+  <div>
+    <h1><%= t('dash_hello', { name: user.name.split(' ')[0] }) %></h1>
+    <p><%= t('dash_sub') %></p>
+  </div>
+  <div class="cluster">
+    <a class="btn btn-primary" href="/report?type=lost"><%- icon('search') %><%= t('home_cta_lost') %></a>
+    <a class="btn btn-secondary" href="/report?type=found"><%- icon('box') %><%= t('home_cta_found') %></a>
+  </div>
+</div>
+
+<div class="stat-row compact" role="group" aria-label="<%= t('dash_stats') %>">
+  <div class="stat"><span class="stat-num"><%= fmt.num(summary.active) %></span><span class="stat-label"><%= t('dash_stat_active') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(summary.matched) %></span><span class="stat-label"><%= t('dash_stat_matched') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(summary.activeClaims) %></span><span class="stat-label"><%= t('dash_stat_claims') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(summary.closed) %></span><span class="stat-label"><%= t('dash_stat_closed') %></span></div>
+</div>
+
+<div class="layout-2 page-section">
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('dash_recent') %></h2><a class="btn btn-ghost btn-sm" href="/track"><%= t('dash_all') %></a></div>
+    <%- include('/partials/case-list', { rows: cases, base: '/items/', progress: true, emptyKind: 'mine' }) %>
+  </section>
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('nav_notifications') %></h2><a class="btn btn-ghost btn-sm" href="/notifications"><%= t('dash_all') %></a></div>
+      <% if (!recent.length) { %><p class="muted"><%= t('notif_none') %></p><% } else { %>
+      <ul class="list">
+        <% recent.forEach(function (n) { %>
+        <li><a class="row-link" href="<%= n.link || '/notifications' %>"><span class="title"><%= t(n.key, n.params) %></span><span class="small muted nowrap"><%= fmt.ago(n.createdAt) %></span></a></li>
+        <% }) %>
+      </ul>
+      <% } %>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('dash_claims') %></h2></div>
+      <% if (!claims.length) { %><p class="muted"><%= t('dash_claims_none') %></p><% } else { %>
+      <ul class="list">
+        <% claims.forEach(function (c) { %>
+        <li><a class="row-link" href="/claims/<%= c.id %>"><span class="title"><%= c.found.title || nm(c.found.category) %><span class="small muted block"><%= c.found.ref %></span></span><%- include('/partials/chip', { kind: 'claim', value: c.status }) %></a></li>
+        <% }) %>
+      </ul>
+      <% } %>
+    </section>
+  </div>
+</div>
+<%- include('/partials/bottom') %>

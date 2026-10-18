@@ -1,0 +1,52 @@
+<% var assets = { scripts: ['/js/live-filter.js'] }; %><%- include('/partials/top', assets) %>
+<div class="page-head">
+  <div><h1><%= t('track_title') %></h1><p><%= t('track_sub') %></p></div>
+  <a class="btn btn-primary" href="/report"><%- icon('plus') %><%= t('nav_report') %></a>
+</div>
+<section class="panel">
+  <form class="filters" method="get" action="/track" data-live-filter="#track-results" data-msg-error="<%= t('live_error') %>" data-msg-count="<%= t('browse_count') %>">
+    <div class="field">
+      <label for="type"><%= t('browse_type') %></label>
+      <select class="select" id="type" name="type">
+        <option value=""><%= t('browse_all_types') %></option>
+        <option value="lost" <%= filters.type === 'lost' ? 'selected' : '' %>><%= t('type_lost') %></option>
+        <option value="found" <%= filters.type === 'found' ? 'selected' : '' %>><%= t('type_found') %></option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="status"><%= t('col_status') %></label>
+      <select class="select" id="status" name="status">
+        <option value=""><%= t('track_all_status') %></option>
+        <% statuses.forEach(function (s) { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= t('status_' + s) %></option><% }) %>
+      </select>
+    </div>
+    <div class="field"><button class="btn btn-primary" type="submit"><%- icon('search') %><%= t('browse_apply') %></button></div>
+    <span class="visually-hidden" role="status" data-live-status></span>
+  </form>
+  <div id="track-results" class="results" aria-busy="false">
+    <%- include('/partials/list-results', { list: list, listBase: '/items/', pagerBase: '/track', params: filters, progress: true, filtered: Boolean(filters.type || filters.status), emptyKind: 'mine' }) %>
+  </div>
+</section>
+
+<section class="panel page-section">
+  <div class="panel-head"><h2><%= t('dash_claims') %></h2></div>
+  <% if (!claims.length) { %>
+    <%- include('/partials/empty', { art: 'shield', heading: t('empty_claims_title'), message: t('empty_claims_body'), cta: { href: '/browse', label: t('nav_browse'), secondary: true } }) %>
+  <% } else { %>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th><%= t('col_item') %></th><th><%= t('col_when') %></th><th><%= t('col_status') %></th></tr></thead>
+      <tbody>
+        <% claims.forEach(function (c) { %>
+        <tr>
+          <td><a class="title" href="/claims/<%= c.id %>"><%= c.found.title || nm(c.found.category) %></a><span class="sub mono"><%= c.found.ref %></span></td>
+          <td class="nowrap"><%= fmt.date(c.createdAt) %></td>
+          <td><%- include('/partials/chip', { kind: 'claim', value: c.status }) %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+  <% } %>
+</section>
+<%- include('/partials/bottom', assets) %>

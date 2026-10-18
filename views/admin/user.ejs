@@ -1,0 +1,56 @@
+<%- include('/partials/top') %>
+<a class="back-link" href="/admin/users"><%- icon('arrow-left') %><%= t('back') %></a>
+<div class="page-head">
+  <div>
+    <div class="cluster">
+      <% if (account.deletedAt) { %><span class="chip chip-gray"><%= t('users_deleted') %></span><% } else { %><%- include('/partials/chip', { kind: 'user', value: account.status }) %><% } %>
+      <span class="muted"><%= t(roleKey[account.role]) %></span>
+    </div>
+    <h1><%= account.name %></h1>
+  </div>
+</div>
+<div class="layout-2">
+  <section class="panel">
+    <% if (account.deletedAt) { %>
+      <p><%= t('users_deleted_body') %></p>
+    <% } else { %>
+      <p class="muted"><%= t('users_edit_sub') %></p>
+      <%- include('/partials/form-errors') %>
+      <form method="post" action="/admin/users/<%= account.id %>" novalidate>
+        <%- csrfField() %>
+        <div class="form-grid">
+          <%- include('/partials/field', { name: 'name', label: 'f_name', required: true, maxlength: 80 }) %>
+          <%- include('/partials/field', { name: 'email', label: 'f_email', type: 'email', required: true, inputmode: 'email', maxlength: 254 }) %>
+          <%- include('/partials/field', { name: 'phone', label: 'f_phone_optional', type: 'tel', inputmode: 'tel', maxlength: 20 }) %>
+          <%- include('/partials/select', { name: 'role', label: 'users_role', required: true, options: roles.map(function (r) { return { value: r, label: t(roleKey[r]) }; }) }) %>
+          <%- include('/partials/select', { name: 'affiliation', label: 'f_affiliation', blank: 'users_affiliation_blank', hint: 'users_affiliation_hint', options: [{ value: 'student', label: t('aff_student') }, { value: 'staff', label: t('aff_staff') }] }) %>
+          <%- include('/partials/select', { name: 'lang', label: 'account_lang', options: [{ value: 'en', label: 'English' }, { value: 'bn', label: 'বাংলা' }] }) %>
+        </div>
+        <button class="btn btn-primary" type="submit"><%= t('save') %></button>
+      </form>
+    <% } %>
+  </section>
+  <div class="stack">
+    <section class="panel">
+      <h2><%= t('users_locked_title') %></h2>
+      <dl class="kv">
+        <dt><%= t('f_university_id') %></dt>
+        <dd><%= account.universityId || '—' %></dd>
+        <dt><%= t('account_password') %></dt>
+        <dd><%= t('users_password_locked') %></dd>
+      </dl>
+      <p class="hint"><%= t('users_id_locked') %></p>
+    </section>
+    <% if (!account.deletedAt && account.id !== user.id) { %>
+    <section class="panel">
+      <h2><%= t('users_delete') %></h2>
+      <p class="muted"><%= t('users_delete_body') %></p>
+      <form method="post" action="/admin/users/<%= account.id %>/delete" data-confirm="<%= t('users_delete_confirm', { name: account.name }) %>">
+        <%- csrfField() %>
+        <button class="btn btn-danger" type="submit"><%= t('users_delete') %></button>
+      </form>
+    </section>
+    <% } %>
+  </div>
+</div>
+<%- include('/partials/bottom') %>

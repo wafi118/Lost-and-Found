@@ -1,0 +1,24 @@
+<%
+  var assets = { shell: 'auth', scripts: token ? ['/js/dropzone.js'] : [] };
+%><%- include('/partials/top', assets) %>
+<div class="auth-card">
+  <% if (!token) { %>
+    <h1><%= t('auth_link_bad_title') %></h1>
+    <p><%= t('svc_TOKEN_INVALID') %></p>
+    <div class="auth-links"><a href="/auth/login"><%= t('auth_back_login') %></a></div>
+  <% } else { %>
+    <h1><%= t('auth_resubmit_title') %></h1>
+    <p class="sub"><%= t('auth_resubmit_sub') %></p>
+    <% if (rejected) { %>
+    <div class="note-box note-warn"><%- icon('alert') %><span><strong><%= t('idr_reason_label') %>:</strong> <%= t('id_reason_' + rejected.rejectCode) %><% if (rejected.rejectNote) { %> · <%= rejected.rejectNote %><% } %></span></div>
+    <% } %>
+    <%- include('/partials/form-errors', { errors: {} }) %>
+    <form method="post" action="/auth/id-card/resubmit/<%= token %>?_csrf=<%= csrfToken() %>" enctype="multipart/form-data" novalidate>
+      <%- include('/partials/dropzone', { name: 'idcard', label: 'f_idcard', hint: 'f_idcard_hint', required: true }) %>
+      <p class="note-box"><%- icon('info') %><span><%= idCard.keepDays > 0 ? t('reg_id_privacy', { days: idCard.keepDays }) : t('reg_id_privacy_now') %></span></p>
+      <button class="btn btn-primary btn-block" type="submit"><%= t('reg_id_resend_submit') %></button>
+    </form>
+    <div class="auth-links"><a href="/auth/login"><%= t('auth_back_login') %></a></div>
+  <% } %>
+</div>
+<%- include('/partials/bottom', assets) %>

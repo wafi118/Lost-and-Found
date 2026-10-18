@@ -1,0 +1,9 @@
+<%
+  /* Everything under the public filters. Rendered inside browse.ejs and, for live filtering, on its own (?partial=1). */
+  var anyFilter = Boolean(filters.q || filters.type || filters.categoryId || filters.building);
+%>
+<div data-count="<%= list.total %>">
+  <p class="muted small"><%= t('browse_count', { n: fmt.num(list.total) }) %></p>
+  <%- include('/partials/feed', { rows: list.rows, filtered: anyFilter }) %>
+  <%- include('/partials/pager', { list: list, base: '/browse', params: { q: filters.q, type: filters.type, category: filters.categoryId, building: filters.building } }) %>
+</div>

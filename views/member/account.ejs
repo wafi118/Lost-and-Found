@@ -1,0 +1,32 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('account_title') %></h1><p><%= t('account_sub') %></p></div></div>
+<div class="grid-2">
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('account_profile') %></h2></div>
+    <dl class="kv">
+      <dt><%= t('f_email') %></dt><dd><%= user.email %></dd>
+      <dt><%= t('account_role') %></dt><dd><%= t(roleKey[user.role]) %></dd>
+      <% if (user.universityId) { %><dt><%= t('f_university_id') %></dt><dd><%= user.universityId %></dd><% } %>
+    </dl>
+    <hr>
+    <form method="post" action="/account/profile" novalidate>
+      <%- csrfField() %>
+      <%- include('/partials/field', { name: 'name', label: 'f_name', autocomplete: 'name', required: true, maxlength: 80 }) %>
+      <%- include('/partials/field', { name: 'phone', label: 'f_phone_optional', type: 'tel', autocomplete: 'tel', inputmode: 'tel', maxlength: 20 }) %>
+      <%- include('/partials/select', { name: 'lang', label: 'account_lang', options: [{ value: 'en', label: 'English' }, { value: 'bn', label: 'বাংলা' }] }) %>
+      <button class="btn btn-primary" type="submit"><%= t('save') %></button>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('account_password') %></h2></div>
+    <form method="post" action="/account/password" novalidate>
+      <%- csrfField() %>
+      <%- include('/partials/field', { name: 'current', label: 'f_password_current', type: 'password', autocomplete: 'current-password', required: true, values: {}, errors: {} }) %>
+      <%- include('/partials/field', { name: 'password', label: 'f_password_new', type: 'password', autocomplete: 'new-password', required: true, hint: 'f_password_hint', values: {}, errors: {} }) %>
+      <%- include('/partials/field', { name: 'confirm', label: 'f_password_confirm', type: 'password', autocomplete: 'new-password', required: true, values: {}, errors: {} }) %>
+      <button class="btn btn-primary" type="submit"><%= t('account_password_button') %></button>
+      <p class="hint"><%= t('account_password_note') %></p>
+    </form>
+  </section>
+</div>
+<%- include('/partials/bottom') %>

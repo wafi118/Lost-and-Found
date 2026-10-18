@@ -1,0 +1,1 @@
+<% var prefix = kind === 'claim' ? 'claim_st_' : (kind === 'user' ? 'user_st_' : 'status_'); %><span class="chip chip-<%= (tone[kind] && tone[kind][value]) || 'gray' %>"><%= t(prefix + value) %></span>

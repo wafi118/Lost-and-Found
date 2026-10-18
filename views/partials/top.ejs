@@ -1,0 +1,116 @@
+<%
+  var shellName = locals.shell || 'public';
+  var activePath = locals.active || currentPath;
+  var bodyCls = [shellName === 'auth' ? 'auth-page' : '', locals.bodyClass || ''].join(' ').trim();
+  var logo = function () { return '<img class="logo-light" src="/images/safefind-logo.png" alt="" width="113" height="38"><img class="logo-dark" src="/images/safefind-logo-dark.png" alt="" width="113" height="38">'; };
+%><!doctype html>
+<html lang="<%= lang %>" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= pageTitle %> · <%= t('site_name') %></title>
+  <meta name="description" content="<%= t('meta_description') %>">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <% (locals.styles || []).forEach(function (href) { %><link rel="stylesheet" href="<%= href %>">
+  <% }) %>
+</head>
+<body<%- bodyCls ? ' class="' + bodyCls + '"' : '' %> data-close-label="<%= t('close') %>" data-open-label="<%= t('toast_open') %>" data-unread-label="<%= t('unread_count', { n: '{n}' }) %>">
+<a class="skip-link" href="#main"><%= t('skip_to_content') %></a>
+<%- include('/partials/icons') %>
+<% if (shellName === 'public') { %>
+<header class="site-header">
+  <div class="container header-row">
+    <a class="brand" href="/" aria-label="<%= t('site_name') %>"><%- logo() %></a>
+    <nav class="nav-links" id="site-nav" aria-label="<%= t('nav_main') %>">
+      <a href="/browse" <%- currentPath === '/browse' ? 'aria-current="page"' : '' %>><%= t('nav_lostfound') %></a>
+      <a href="/#how" data-spy="how"><%= t('nav_how') %></a>
+      <a href="/#features" data-spy="features"><%= t('nav_features') %></a>
+      <a href="/about" <%- currentPath === '/about' ? 'aria-current="page"' : '' %>><%= t('nav_about') %></a>
+      <a href="/#contact" data-spy="contact"><%= t('nav_contact') %></a>
+      <% if (!user) { %>
+      <a class="nav-extra" href="/auth/login"><%= t('nav_signin') %></a>
+      <a class="nav-extra" href="/auth/register"><%= t('nav_register') %></a>
+      <% } else { %>
+      <a class="nav-extra" href="<%= LANDING[user.role] || '/' %>"><%= t('nav_workspace') %></a>
+      <% } %>
+    </nav>
+    <div class="header-tools">
+      <a class="ib" href="/lang/<%= lang === 'bn' ? 'en' : 'bn' %>?next=<%= encodeURIComponent(currentUrl) %>" hreflang="<%= lang === 'bn' ? 'en' : 'bn' %>" lang="<%= lang === 'bn' ? 'en' : 'bn' %>" aria-label="<%= t('lang_label') %>: <%= lang === 'bn' ? 'English' : 'বাংলা' %>"><%= lang === 'bn' ? 'EN' : 'বাং' %></a>
+      <button type="button" class="ib" data-theme-toggle aria-label="<%= t('theme_toggle') %>" title="<%= t('theme_toggle') %>"><%- icon('moon', 'theme-moon') %><%- icon('sun', 'theme-sun') %></button>
+      <button type="button" class="ib menu-btn" data-menu-toggle aria-expanded="false" aria-controls="site-nav" aria-label="<%= t('nav_menu') %>"><%- icon('menu') %></button>
+      <% if (user) { %>
+        <a class="btn btn-primary btn-sm hide-480" href="<%= LANDING[user.role] || '/' %>"><%= t('nav_workspace') %></a>
+      <% } else { %>
+        <a class="btn btn-secondary btn-sm hide-480" href="/auth/login"><%= t('nav_signin') %></a>
+        <a class="btn btn-primary btn-sm hide-560" href="/auth/register"><%= t('nav_register') %></a>
+      <% } %>
+    </div>
+  </div>
+  <% if (locals.progress) { %><div class="read-progress" aria-hidden="true"><i></i></div><% } %>
+</header>
+<main id="main">
+  <% if (flash) { %><div class="container public-flash"><%- include('/partials/flash') %></div><% } %>
+<% } else if (shellName === 'app') { %>
+<div class="app">
+  <aside class="sidebar" id="sidebar" aria-label="<%= t('nav_sidebar') %>">
+    <a class="brand" href="<%= LANDING[user.role] || '/' %>" aria-label="<%= t('site_name') %>"><%- logo() %></a>
+    <% var isActive = function (href) {
+         if (activePath === href) return true;
+         var roots = ['/dashboard', '/security', '/admin', '/approver'];
+         if (roots.indexOf(href) !== -1 || activePath.indexOf(href + '/') !== 0) return false;
+         var items = (nav && nav.workspace) || [];
+         return !items.some(function (other) {
+           return other.href !== href && other.href.indexOf(href + '/') === 0 && (activePath === other.href || activePath.indexOf(other.href + '/') === 0);
+         });
+       }; %>
+    <% if (nav && nav.workspace.length) { %>
+    <div class="side-group">
+      <p class="side-title"><%= t('nav_workspace') %></p>
+      <ul class="side-nav">
+        <% nav.workspace.forEach(function (item) { %>
+        <li><a class="side-link" href="<%= item.href %>" <%- isActive(item.href) ? 'aria-current="page"' : '' %>><%- icon(item.icon) %><span><%= t(item.key) %></span></a></li>
+        <% }) %>
+      </ul>
+    </div>
+    <% } %>
+    <div class="side-group">
+      <p class="side-title"><%= t('nav_personal') %></p>
+      <ul class="side-nav">
+        <% nav.personal.forEach(function (item) { %>
+        <li><a class="side-link" href="<%= item.href %>" <%- isActive(item.href) ? 'aria-current="page"' : '' %>><%- icon(item.icon) %><span><%= t(item.key) %></span>
+          <% if (item.href === '/notifications' && unread > 0) { %><span class="chip chip-red" aria-label="<%= t('unread_count', { n: unread }) %>"><%= unread %></span><% } %></a></li>
+        <% }) %>
+      </ul>
+    </div>
+    <div class="side-foot">
+      <p class="who"><%= user.name %></p>
+      <p class="muted small"><%= t(roleKey[user.role]) %></p>
+      <form method="post" action="/auth/logout"><%- csrfField() %>
+        <button class="btn btn-secondary btn-sm btn-block" type="submit"><%- icon('logout') %><%= t('nav_signout') %></button>
+      </form>
+    </div>
+  </aside>
+  <div class="backdrop" data-nav-backdrop></div>
+  <div class="workspace">
+    <header class="topbar">
+      <button type="button" class="icon-btn nav-toggle" data-nav-toggle aria-controls="sidebar" aria-expanded="false" aria-label="<%= t('nav_menu') %>"><%- icon('menu') %></button>
+      <a class="btn btn-ghost btn-sm" href="/"><%- icon('home') %><span class="btn-hide-sm"><%= t('nav_public_site') %></span></a>
+      <span class="spacer"></span>
+      <%- include('/partials/tools') %>
+      <a class="icon-btn" href="/notifications" aria-label="<%= t('nav_notifications') %>"><%- icon('bell') %><% if (unread > 0) { %><span class="dot-count" aria-hidden="true"><%= unread > 9 ? '9+' : unread %></span><% } %></a>
+    </header>
+    <main id="main" class="content">
+      <%- include('/partials/flash') %>
+<% } else { %>
+<div class="auth-page-inner">
+  <header class="auth-top">
+    <a class="brand" href="/" aria-label="<%= t('site_name') %>"><%- logo() %></a>
+    <div class="header-tools"><%- include('/partials/tools') %></div>
+  </header>
+  <main id="main" class="auth-main">
+    <div class="auth-col<%= locals.wide ? ' wide' : '' %>">
+      <%- include('/partials/flash') %>
+<% } %>

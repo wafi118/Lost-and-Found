@@ -1,0 +1,41 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_locations') %></h1><p><%= t('loc_sub') %></p></div></div>
+<div class="stack">
+  <p class="flash flash-info"><%- icon('info') %><span><%= t('loc_placeholder_note') %></span></p>
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('loc_add') %></h2></div>
+    <form class="edit-row" method="post" action="/admin/locations" novalidate>
+      <%- csrfField() %>
+      <div class="edit-fields">
+        <div class="field"><label for="new-building"><%= t('loc_building') %></label><input class="input" id="new-building" name="building" required maxlength="60"></div>
+        <div class="field"><label for="new-buildingBn"><%= t('loc_building_bn') %></label><input class="input" id="new-buildingBn" name="buildingBn" maxlength="60"></div>
+        <div class="field"><label for="new-name"><%= t('loc_name') %></label><input class="input" id="new-name" name="name" required maxlength="60"></div>
+        <div class="field"><label for="new-nameBn"><%= t('loc_name_bn') %></label><input class="input" id="new-nameBn" name="nameBn" maxlength="60"></div>
+        <div class="field"><label for="new-lat"><%= t('loc_lat') %></label><input class="input" id="new-lat" name="lat" inputmode="decimal" maxlength="12"></div>
+        <div class="field"><label for="new-lng"><%= t('loc_lng') %></label><input class="input" id="new-lng" name="lng" inputmode="decimal" maxlength="12"></div>
+      </div>
+      <div class="checks"><button class="btn btn-primary" type="submit"><%= t('loc_add_button') %></button></div>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('loc_existing') %></h2></div>
+    <% rows.forEach(function (l) { %>
+    <form class="edit-row" method="post" action="/admin/locations/<%= l.id %>" novalidate>
+      <%- csrfField() %>
+      <div class="edit-fields">
+        <div class="field"><label for="l<%= l.id %>-b"><%= t('loc_building') %></label><input class="input" id="l<%= l.id %>-b" name="building" required maxlength="60" value="<%= l.building %>"></div>
+        <div class="field"><label for="l<%= l.id %>-bb"><%= t('loc_building_bn') %></label><input class="input" id="l<%= l.id %>-bb" name="buildingBn" maxlength="60" value="<%= l.buildingBn %>"></div>
+        <div class="field"><label for="l<%= l.id %>-n"><%= t('loc_name') %></label><input class="input" id="l<%= l.id %>-n" name="name" required maxlength="60" value="<%= l.name %>"></div>
+        <div class="field"><label for="l<%= l.id %>-nb"><%= t('loc_name_bn') %></label><input class="input" id="l<%= l.id %>-nb" name="nameBn" maxlength="60" value="<%= l.nameBn %>"></div>
+        <div class="field"><label for="l<%= l.id %>-la"><%= t('loc_lat') %></label><input class="input" id="l<%= l.id %>-la" name="lat" inputmode="decimal" maxlength="12" value="<%= l.lat === null ? '' : l.lat %>"></div>
+        <div class="field"><label for="l<%= l.id %>-ln"><%= t('loc_lng') %></label><input class="input" id="l<%= l.id %>-ln" name="lng" inputmode="decimal" maxlength="12" value="<%= l.lng === null ? '' : l.lng %>"></div>
+      </div>
+      <div class="checks">
+        <div class="check"><input type="checkbox" id="l<%= l.id %>-on" name="active" <%= l.active ? 'checked' : '' %>><label for="l<%= l.id %>-on"><%= t('cat_active') %></label></div>
+        <button class="btn btn-secondary btn-sm" type="submit"><%= t('save') %></button>
+      </div>
+    </form>
+    <% }) %>
+  </section>
+</div>
+<%- include('/partials/bottom') %>

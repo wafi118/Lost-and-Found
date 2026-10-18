@@ -1,0 +1,30 @@
+<% var assets = { scripts: ['/js/dropzone.js'] }; %><%- include('/partials/top', assets) %>
+<a class="back-link" href="/security/inventory"><%- icon('arrow-left') %><%= t('back') %></a>
+<div class="page-head"><div><h1><%= t('intake_title') %></h1><p><%= t('intake_sub') %></p></div></div>
+<div class="panel">
+  <%- include('/partials/form-errors') %>
+  <form method="post" action="/security/intake?_csrf=<%= csrfToken() %>" enctype="multipart/form-data" novalidate>
+    <h2><%= t('intake_item') %></h2>
+    <div class="form-grid">
+      <div class="span-2"><%- include('/partials/field', { name: 'title', label: 'f_title', required: true, maxlength: 80, hint: 'f_title_hint' }) %></div>
+      <%- include('/partials/select', { name: 'categoryId', label: 'f_category', required: true, blank: 'f_choose', options: categories.map(function (c) { return { value: c.id, label: nm(c) }; }) }) %>
+      <%- include('/partials/select', { name: 'locationId', label: 'f_location_found', required: true, blank: 'f_choose', options: locations.map(function (l) { return { value: l.id, label: place(l) }; }) }) %>
+      <div class="span-2"><%- include('/partials/textarea', { name: 'description', label: 'f_description', required: true, rows: 4, maxlength: 1000, hint: 'f_description_hint_staff' }) %></div>
+      <%- include('/partials/field', { name: 'locationDetail', label: 'f_location_detail', maxlength: 200 }) %>
+      <%- include('/partials/field', { name: 'occurredAt', label: 'f_found_at', type: 'datetime-local', required: true, max: nowInput() }) %>
+      <%- include('/partials/field', { name: 'storageSlot', label: 'f_slot', required: true, maxlength: 20, hint: 'f_slot_hint' }) %>
+    </div>
+    <h2><%= t('intake_finder') %></h2>
+    <div class="form-grid">
+      <%- include('/partials/field', { name: 'finderName', label: 'intake_finder_name', required: true, maxlength: 80 }) %>
+      <%- include('/partials/field', { name: 'finderContact', label: 'intake_contact', maxlength: 80 }) %>
+      <div class="span-2"><%- include('/partials/field', { name: 'finderUniversityId', label: 'intake_finder_id', maxlength: 24, hint: 'intake_finder_id_hint' }) %></div>
+    </div>
+    <%- include('/partials/dropzone', { name: 'photo', label: 'f_photo', hint: 'f_photo_hint' }) %>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit"><%= t('intake_submit') %></button>
+      <a class="btn btn-secondary" href="/security/inventory"><%= t('cancel') %></a>
+    </div>
+  </form>
+</div>
+<%- include('/partials/bottom', assets) %>

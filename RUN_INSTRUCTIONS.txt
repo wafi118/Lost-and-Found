@@ -1,0 +1,75 @@
+SAFEFIND BUP - HOW TO RUN IT AND SHOW IT
+
+1. Install Node.js 20 or 22 LTS from nodejs.org. Check:  node -v
+   Install PostgreSQL 14 or newer as well.
+
+2. In this folder, in a terminal:
+
+     npm install
+     copy .env.example .env            (macOS or Linux: cp .env.example .env)
+
+   Create an empty database and put its address in DATABASE_URL inside .env.
+   Then either restore the ready dump:
+
+     psql "$DATABASE_URL" -f database/safefind.sql
+
+   or leave the database empty. On the first start the app creates the tables
+   and loads the demo data itself. Data stays in PostgreSQL when you stop the server.
+
+     npm start
+
+3. Open http://localhost:3000 in a browser.
+
+DEMO ACCOUNTS (password in brackets)
+   Student            student@safefind.example      (Student@12345)
+   Second student     student2@safefind.example     (Student@12345)
+   Security Cell      security@safefind.example     (Security@12345)
+   Second security    security2@safefind.example    (Security@12345)
+   Approver           approver@safefind.example     (Approver@12345)
+   Administrator      admin@safefind.example        (Admin@12345)
+
+FIVE-MINUTE DEMONSTRATION
+
+ A. The public board
+    Open http://localhost:3000/browse without signing in. Click the "Student or staff ID
+    card" entry: the title is hidden on purpose. Try searching for a word that only appears
+    in a description, for example "analogue"; nothing is found.
+
+ B. A claim, from verification to handover (uses the demo data)
+    1. Sign in as security@ and open Claims. Open the "Black backpack" claim. The left box is
+       what the claimant wrote, the right box is what only staff know. Press "Verify ownership".
+    2. Sign out. Sign in as student@, open My cases, open the claim. A QR code and an
+       8-character code appear.
+    3. Sign out. Sign in as security2@, open Handover. Type the 8-character code (or press
+       "Start camera" and show the QR from a second screen; the camera needs localhost or HTTPS).
+       Check the details, tick "I checked the ID", confirm. Both cases close.
+    4. Sign in as admin@ and open Audit log: every step is there.
+
+ C. A report that needs approval
+    1. Sign in as student2@, press "I lost something". Choose "Mobile phone": a note says the
+       authorized approver must approve first. Fill in the form and send it.
+    2. Sign in as approver@, open the report, approve it.
+    3. Sign in as security@, open Review queue, accept the report. If a found item matches,
+       Match suggestions shows the score and the reasons; staff confirm or reject.
+
+ D. What version 1.2 added (three minutes)
+    1. Sign in as student@ and press "I lost something". The report has three steps. Press "Next step" with
+       empty fields to see the messages, fill the fields in, then drag a photo onto the box in step 3 (or
+       press "Choose a file"). The last step lists what you entered. After you send it, a message slides in
+       at the top right and the case page shows how far the case has got.
+    2. Open the public board (/browse) without signing in. Type a word or pick a building: the list changes
+       without the page reloading. Search for "zzzz" to see the empty state and its "Clear filters" button.
+    3. Live alerts need two browsers (or one normal window and one private window). In window A sign in as
+       security@. In window B sign in as student2@, open "Set of keys with a green tag" and make a claim.
+       Window A shows a message at once. Verify the claim in window A: window B shows one too.
+
+CHECKS
+     npm test           the automated tests (about 20 seconds)
+     npm run smoke      visits every page as every role
+     npm run browser-check   the real-browser check of the version 1.2 additions. It needs a browser first:
+                        npm install --no-save playwright   then   npx playwright install chromium
+
+IF SOMETHING FAILS
+   - "bcrypt" error during npm install: see Troubleshooting in README.md.
+   - Port 3000 is busy: put PORT=3001 in .env and restart.
+   - The map is empty: it needs internet access for the map tiles.

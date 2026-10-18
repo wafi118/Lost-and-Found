@@ -1,0 +1,7 @@
+<div class="lang-switch" role="group" aria-label="<%= t('lang_label') %>">
+  <a href="/lang/en?next=<%= encodeURIComponent(currentUrl) %>" hreflang="en" lang="en" <%- lang === 'en' ? 'aria-current="true"' : '' %>>EN</a>
+  <a href="/lang/bn?next=<%= encodeURIComponent(currentUrl) %>" hreflang="bn" lang="bn" <%- lang === 'bn' ? 'aria-current="true"' : '' %>>বাংলা</a>
+</div>
+<button type="button" class="icon-btn" data-theme-toggle aria-label="<%= t('theme_toggle') %>" title="<%= t('theme_toggle') %>">
+  <%- icon('moon', 'theme-moon') %><%- icon('sun', 'theme-sun') %>
+</button>

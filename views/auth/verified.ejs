@@ -1,0 +1,7 @@
+<%- include('/partials/top', { shell: 'auth' }) %>
+<div class="auth-card">
+  <h1><%= t('auth_verified_title') %></h1>
+  <p><%= byIdCard ? t('auth_verified_id') : (needsApproval ? t('auth_verified_pending') : t('auth_verified_body')) %></p>
+  <a class="btn btn-primary" href="/auth/login"><%= t('nav_signin') %></a>
+</div>
+<%- include('/partials/bottom', { shell: 'auth' }) %>

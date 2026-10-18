@@ -1,0 +1,104 @@
+<%
+  var open = ['submitted', 'proof_requested', 'verified'].indexOf(claim.status) !== -1;
+%>
+<%- include('/partials/top') %>
+<a class="back-link" href="/security/claims"><%- icon('arrow-left') %><%= t('back') %></a>
+<div class="page-head">
+  <div>
+    <div class="cluster"><%- include('/partials/chip', { kind: 'claim', value: claim.status }) %><a class="mono" href="/security/cases/<%= claim.found.ref %>"><%= claim.found.ref %></a><% if (claim.tier2) { %><span class="chip chip-amber"><%= t('claim_tier2_badge') %></span><% } %></div>
+    <h1><%= claim.foundPrivate ? claim.foundPrivate.title : claim.found.title %></h1>
+  </div>
+</div>
+
+<div class="layout-2">
+  <div class="stack">
+    <section class="panel">
+      <h2><%= t('claim_compare_title') %></h2>
+      <p class="muted"><%= t('claim_compare_sub') %></p>
+      <div class="pair">
+        <div>
+          <h4><%= t('claim_their_statement') %></h4>
+          <p class="prose"><%= claim.statement %></p>
+          <% if (claim.proofNote) { %><p class="prose small muted"><%= claim.proofNote %></p><% } %>
+          <% if (claim.proof && claim.proof.file) { %><img class="item-photo" src="/uploads/<%= claim.proof.file %>" alt="<%= t('f_proof') %>"><% } %>
+        </div>
+        <div>
+          <h4><%= t('claim_item_private') %></h4>
+          <p class="prose"><%= claim.foundPrivate.description %></p>
+          <% if (claim.foundPrivate.locationDetail) { %><p class="small muted"><%= claim.foundPrivate.locationDetail %></p><% } %>
+          <% if (claim.foundPrivate.storageSlot) { %><p class="small"><strong><%= t('item_slot') %>:</strong> <%= claim.foundPrivate.storageSlot %></p><% } %>
+          <% if (claim.foundPrivate.photo) { %><img class="item-photo" src="/uploads/<%= claim.foundPrivate.photo %>" alt="<%= t('item_photo_alt') %>"><% } %>
+        </div>
+      </div>
+      <% if (claim.lostPrivate) { %>
+      <div class="pair">
+        <div>
+          <h4><%= t('claim_linked_lost') %></h4>
+          <p><a class="mono" href="/security/cases/<%= claim.lost.ref %>"><%= claim.lost.ref %></a> · <strong><%= claim.lost.title %></strong></p>
+          <p class="prose"><%= claim.lostPrivate.description %></p>
+          <p class="small muted"><%= fmt.dateTime(claim.lostPrivate.occurredAt) %></p>
+        </div>
+      </div>
+      <% } %>
+      <% if (claim.tier2) { %><p class="flash flash-info"><%- icon('info') %><span><%= t('claim_tier2_staff') %></span></p><% } %>
+    </section>
+
+    <% if (canAct && (claim.status === 'submitted' || claim.status === 'proof_requested')) { %>
+    <section class="panel">
+      <h2><%= t('claim_actions') %></h2>
+      <% if (claim.status === 'submitted') { %>
+      <form method="post" action="/security/claims/<%= claim.id %>/verify" novalidate>
+        <%- csrfField() %>
+        <%- include('/partials/textarea', { name: 'note', label: 'claim_verify_note', rows: 2, maxlength: 500, hint: 'claim_verify_hint', values: {} }) %>
+        <button class="btn btn-primary" type="submit"><%= t('claim_verify') %></button>
+      </form>
+      <hr>
+      <form method="post" action="/security/claims/<%= claim.id %>/request-proof" novalidate>
+        <%- csrfField() %>
+        <%- include('/partials/textarea', { name: 'reason', id: 'proof-reason', label: 'claim_proof_reason', rows: 2, maxlength: 500, hint: 'claim_proof_reason_hint', values: {} }) %>
+        <button class="btn btn-secondary" type="submit"><%= t('claim_request_proof') %></button>
+      </form>
+      <hr>
+      <% } %>
+      <form method="post" action="/security/claims/<%= claim.id %>/reject" novalidate>
+        <%- csrfField() %>
+        <%- include('/partials/textarea', { name: 'reason', id: 'reject-reason', label: 'claim_reject_reason', rows: 2, maxlength: 500, hint: 'claim_reject_hint', values: {} }) %>
+        <button class="btn btn-danger" type="submit"><%= t('claim_reject') %></button>
+      </form>
+    </section>
+    <% } %>
+
+    <% if (handover) { %>
+    <section class="panel">
+      <h2><%= t('claim_handover_title') %></h2>
+      <p><%= t('handover_state_' + handover.status) %><% if (handover.status === 'pending') { %> · <%= t('sec_expires', { date: fmt.dateTime(handover.expiresAt) }) %><% } %></p>
+      <% if (handover.status === 'pending' && canAct) { %>
+      <div class="cluster">
+        <a class="btn btn-primary" href="/security/handover"><%- icon('qr') %><%= t('handover_title') %></a>
+        <% if (handover.expired) { %>
+        <form method="post" action="/security/claims/<%= claim.id %>/renew"><%- csrfField() %><button class="btn btn-secondary" type="submit"><%= t('handover_renew') %></button></form>
+        <% } %>
+      </div>
+      <% } %>
+    </section>
+    <% } %>
+  </div>
+
+  <div class="stack">
+    <section class="panel">
+      <h2><%= t('claims_claimant') %></h2>
+      <dl class="kv">
+        <dt><%= t('f_name') %></dt><dd><%= claim.claimant.name %></dd>
+        <dt><%= t('f_email') %></dt><dd><%= claim.claimant.email %></dd>
+        <% if (claim.claimant.universityId) { %><dt><%= t('f_university_id') %></dt><dd><%= claim.claimant.universityId %></dd><% } %>
+        <% if (claim.claimant.phone) { %><dt><%= t('f_phone') %></dt><dd><%= claim.claimant.phone %></dd><% } %>
+        <dt><%= t('claim_submitted_on') %></dt><dd><%= fmt.dateTime(claim.createdAt) %></dd>
+      </dl>
+    </section>
+    <section class="panel">
+      <h2><%= t('item_timeline') %></h2>
+      <%- include('/partials/timeline', { events: claim.events }) %>
+    </section>
+  </div>
+</div>
+<%- include('/partials/bottom') %>

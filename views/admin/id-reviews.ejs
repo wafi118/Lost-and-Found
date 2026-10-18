@@ -1,0 +1,33 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_id_reviews') %></h1><p><%= t('idr_sub') %></p></div></div>
+<div class="stack">
+  <nav class="segmented" aria-label="<%= t('idr_filter_label') %>">
+    <% ['submitted', 'approved', 'rejected'].forEach(function (s) { %>
+    <a href="/admin/id-reviews?status=<%= s %>" <%- status === s ? 'aria-current="true"' : '' %>><%= t('idp_st_' + s) %><% if (s === 'submitted') { %> (<%= fmt.num(waiting) %>)<% } %></a>
+    <% }) %>
+  </nav>
+  <section class="panel">
+    <% if (!list.rows.length) { %>
+      <%- include('/partials/empty', { art: 'users', heading: t('list_empty_title'), message: t('idr_empty_' + status) }) %>
+    <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th><%= t('f_name') %></th><th><%= t('f_university_id') %></th><th><%= t('idr_sent') %></th><th><%= t('col_status') %></th><th><%= t('users_actions') %></th></tr></thead>
+        <tbody>
+          <% list.rows.forEach(function (r) { %>
+          <tr>
+            <td><span class="title"><%= r.user ? r.user.name : '—' %></span><span class="sub"><%= r.user ? r.user.email : '' %></span></td>
+            <td class="nowrap"><%= r.user && r.user.universityId ? r.user.universityId : '—' %><% if (r.user && r.user.affiliation) { %> · <%= t('aff_' + r.user.affiliation) %><% } %></td>
+            <td class="nowrap"><%= fmt.dateTime(r.proof.submittedAt) %></td>
+            <td><span class="chip chip-<%= { submitted: 'amber', approved: 'green', rejected: 'red' }[r.proof.status] %>"><%= t('idp_st_' + r.proof.status) %></span><% if (r.proof.final) { %> <span class="chip chip-gray"><%= t('idr_final') %></span><% } %></td>
+            <td><a class="btn <%= r.proof.status === 'submitted' ? 'btn-primary' : 'btn-secondary' %> btn-sm" href="/admin/id-reviews/<%= r.proof.id %>"><%= r.proof.status === 'submitted' ? t('idr_review') : t('idr_open') %></a></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+    <%- include('/partials/pager', { list: list, base: '/admin/id-reviews', params: { status: status } }) %>
+  </section>
+</div>
+<%- include('/partials/bottom') %>

@@ -1,0 +1,10 @@
+<% var pages = Math.max(1, Math.ceil(list.total / list.pageSize)); %>
+<% if (pages > 1) { %>
+<nav class="pager" aria-label="<%= t('pager_label') %>">
+  <span><%= t('pager_status', { page: fmt.num(list.page), pages: fmt.num(pages), total: fmt.num(list.total) }) %></span>
+  <span class="pager-links">
+    <% if (list.page > 1) { %><a class="btn btn-secondary btn-sm" href="<%= base %>?<%= qs(Object.assign({}, params || {}, { page: list.page - 1 })) %>"><%- icon('arrow-left') %><%= t('pager_prev') %></a><% } %>
+    <% if (list.page < pages) { %><a class="btn btn-secondary btn-sm" href="<%= base %>?<%= qs(Object.assign({}, params || {}, { page: list.page + 1 })) %>"><%= t('pager_next') %><%- icon('arrow-right') %></a><% } %>
+  </span>
+</nav>
+<% } %>

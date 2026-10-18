@@ -1,0 +1,10 @@
+<%
+  /* The two ways to register. Plain links, so it works without JavaScript and each way has its own address.
+     Shown only when registration with an ID card is switched on. Param: current ('email' or 'id'). */
+%>
+<% if (idCard.enabled) { %>
+<nav class="segmented block" aria-label="<%= t('reg_way_label') %>">
+  <a href="/auth/register" <%- current === 'email' ? 'aria-current="true"' : '' %>><%= t('reg_way_email') %></a>
+  <a href="/auth/register/id-card" <%- current === 'id' ? 'aria-current="true"' : '' %>><%= t('reg_way_id') %></a>
+</nav>
+<% } %>

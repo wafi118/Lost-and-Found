@@ -1,0 +1,18 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_approvals') %></h1><p><%= t('appr_sub') %></p></div></div>
+<div class="stat-row compact" role="group" aria-label="<%= t('sec_stats') %>">
+  <div class="stat"><span class="stat-num"><%= fmt.num(summary.pending) %></span><span class="stat-label"><%= t('appr_stat_pending') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(summary.approved) %></span><span class="stat-label"><%= t('appr_stat_approved') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(summary.rejected) %></span><span class="stat-label"><%= t('appr_stat_rejected') %></span></div>
+</div>
+<div class="stack page-section">
+  <nav class="segmented" aria-label="<%= t('claims_tabs') %>">
+    <a href="/approver" <%- !history ? 'aria-current="true"' : '' %>><%= t('appr_tab_pending') %></a>
+    <a href="/approver/history" <%- history ? 'aria-current="true"' : '' %>><%= t('appr_tab_history') %></a>
+  </nav>
+  <section class="panel">
+    <%- include('/partials/case-list', { rows: list.rows, base: '/approver/cases/' }) %>
+    <%- include('/partials/pager', { list: list, base: history ? '/approver/history' : '/approver', params: {} }) %>
+  </section>
+</div>
+<%- include('/partials/bottom') %>

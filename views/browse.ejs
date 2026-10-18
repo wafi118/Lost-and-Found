@@ -1,0 +1,46 @@
+<% var assets = { shell: 'public', scripts: ['/js/live-filter.js'] }; %><%- include('/partials/top', assets) %>
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h1><%= t('browse_title') %></h1>
+        <p><%= t('browse_sub') %></p>
+      </div>
+    </div>
+    <form class="filters" method="get" action="/browse" role="search" data-live-filter="#browse-results" data-msg-error="<%= t('live_error') %>" data-msg-count="<%= t('browse_count') %>">
+      <div class="field field-grow">
+        <label for="q"><%= t('browse_search') %></label>
+        <input class="input" id="q" name="q" type="search" value="<%= filters.q %>" maxlength="60" placeholder="<%= t('browse_search_ph') %>">
+      </div>
+      <div class="field">
+        <label for="type"><%= t('browse_type') %></label>
+        <select class="select" id="type" name="type">
+          <option value=""><%= t('browse_all_types') %></option>
+          <option value="lost" <%= filters.type === 'lost' ? 'selected' : '' %>><%= t('type_lost') %></option>
+          <option value="found" <%= filters.type === 'found' ? 'selected' : '' %>><%= t('type_found') %></option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="category"><%= t('browse_category') %></label>
+        <select class="select" id="category" name="category">
+          <option value=""><%= t('browse_all_categories') %></option>
+          <% categories.forEach(function (c) { %><option value="<%= c.id %>" <%= Number(filters.categoryId) === c.id ? 'selected' : '' %>><%= nm(c) %></option><% }) %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="building"><%= t('browse_building') %></label>
+        <select class="select" id="building" name="building">
+          <option value=""><%= t('browse_all_buildings') %></option>
+          <% buildings.forEach(function (b) { %><option value="<%= b.value %>" <%= filters.building === b.value ? 'selected' : '' %>><%= b.label %></option><% }) %>
+        </select>
+      </div>
+      <div class="field"><button class="btn btn-primary" type="submit"><%- icon('search') %><%= t('browse_apply') %></button></div>
+      <span class="visually-hidden" role="status" data-live-status></span>
+    </form>
+    <div id="browse-results" class="results" aria-busy="false">
+      <%- include('/partials/browse-results', { list: list, filters: filters }) %>
+    </div>
+    <p class="hint"><%- icon('lock', 'icon-sm') %> <%= t('board_privacy') %></p>
+  </div>
+</section>
+<%- include('/partials/bottom', assets) %>

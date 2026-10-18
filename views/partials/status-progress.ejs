@@ -1,0 +1,21 @@
+<%
+  /* The four-step path of a case. Param: prog (from progressFor in utils/progress.js), compact (a small bar for lists). */
+  var cur = prog.steps[prog.position - 1];
+  var stateKey = { complete: 'progress_done', current: 'progress_current', upcoming: 'progress_todo', stopped: 'progress_stopped' };
+%>
+<% if (locals.compact) { %>
+<span class="mini-progress" role="img" aria-label="<%= t('progress_summary', { n: prog.position, total: prog.total, step: t(cur.key) }) %>"><% prog.steps.forEach(function (s) { %><i class="is-<%= s.state %>"></i><% }) %></span>
+<% } else { %>
+<ol class="progress-steps" aria-label="<%= t('progress_title') %>">
+  <% prog.steps.forEach(function (s, i) { %>
+  <li class="progress-step is-<%= s.state %>"<%- s.state === 'current' ? ' aria-current="step"' : '' %>>
+    <span class="progress-dot" aria-hidden="true"><% if (s.state === 'complete') { %><%- icon('check') %><% } else if (s.state === 'stopped') { %><%- icon('x') %><% } else { %><%= i + 1 %><% } %></span>
+    <span class="progress-text">
+      <span class="progress-label"><%= t(s.key) %></span>
+      <span class="progress-state"><%= t(stateKey[s.state]) %></span>
+    </span>
+  </li>
+  <% }) %>
+</ol>
+<% if (prog.detailKey) { %><p class="progress-now"><%= t('progress_now', { status: t(prog.detailKey) }) %></p><% } %>
+<% } %>

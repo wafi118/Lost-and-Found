@@ -1,0 +1,27 @@
+<%- include('/partials/top', { shell: 'auth' }) %>
+<div class="auth-card">
+  <h1><%= t('auth_login_title') %></h1>
+  <p class="sub"><%= t('auth_login_sub') %></p>
+  <% if (signedOut) { %><div class="flash flash-success" data-flash data-type="success" role="status"><%- icon('check') %><p><%= t('flash_signed_out') %></p></div><% } %>
+  <%- include('/partials/form-errors') %>
+  <form method="post" action="/auth/login" novalidate>
+    <%- csrfField() %>
+    <input type="hidden" name="next" value="<%= next %>">
+    <%- include('/partials/field', { name: 'email', label: 'f_email', type: 'email', autocomplete: 'username', required: true, autofocus: true, inputmode: 'email' }) %>
+    <%- include('/partials/field', { name: 'password', label: 'f_password', type: 'password', autocomplete: 'current-password', required: true }) %>
+    <button class="btn btn-primary btn-block" type="submit"><%= t('nav_signin') %></button>
+  </form>
+  <% if (resendEmail) { %>
+    <form method="post" action="/auth/resend" class="auth-links">
+      <%- csrfField() %>
+      <input type="hidden" name="email" value="<%= resendEmail %>">
+      <button class="btn btn-secondary btn-sm" type="submit"><%= t('auth_resend') %></button>
+    </form>
+  <% } %>
+  <div class="auth-links">
+    <a href="/auth/forgot"><%= t('auth_forgot_link') %></a>
+    <% if (idCard.enabled) { %><span class="muted"><%= t('auth_login_id_hint') %></span><% } %>
+    <span class="muted"><%= t('auth_no_account') %> <a href="/auth/register"><%= t('nav_register') %></a></span>
+  </div>
+</div>
+<%- include('/partials/bottom', { shell: 'auth' }) %>

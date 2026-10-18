@@ -1,0 +1,64 @@
+<%- include('/partials/top') %>
+<a class="back-link" href="/approver"><%- icon('arrow-left') %><%= t('back') %></a>
+<div class="page-head">
+  <div>
+    <div class="cluster"><span class="tag tag-<%= view.type %>"><%= t('type_' + view.type) %></span><%- include('/partials/chip', { kind: 'case', value: view.status }) %><span class="mono muted"><%= view.ref %></span></div>
+    <h1><%= view.title %></h1>
+  </div>
+</div>
+<div class="layout-2">
+  <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><h2><%= t('item_details') %></h2></div>
+      <dl class="kv">
+        <dt><%= t('f_category') %></dt><dd><%= nm(category) %></dd>
+        <dt><%= t('item_where') %></dt><dd><%= place(location) %><% if (view.locationDetail) { %> · <%= view.locationDetail %><% } %></dd>
+        <dt><%= t('item_when') %></dt><dd><%= fmt.dateTime(view.occurredAt) %></dd>
+        <dt><%= t('item_reported') %></dt><dd><%= fmt.dateTime(view.createdAt) %></dd>
+        <dt><%= t('f_description') %></dt><dd class="prose"><%= view.description %></dd>
+      </dl>
+      <% if (view.photo) { %><img class="item-photo" src="/uploads/<%= view.photo %>" alt="<%= t('item_photo_alt') %>"><% } %>
+    </section>
+
+    <% if (view.status === 'pending_approval') { %>
+    <section class="panel">
+      <h2><%= t('appr_decision') %></h2>
+      <p class="muted"><%= t('appr_decision_sub') %></p>
+      <form method="post" action="/approver/cases/<%= view.ref %>/decision" novalidate>
+        <%- csrfField() %>
+        <%- include('/partials/textarea', { name: 'remarks', label: 'appr_remarks', rows: 3, maxlength: 500, hint: 'appr_remarks_hint', values: {} }) %>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" name="decision" value="approve"><%= t('appr_approve') %></button>
+          <button class="btn btn-danger" type="submit" name="decision" value="reject"><%= t('appr_reject') %></button>
+        </div>
+      </form>
+    </section>
+    <% } else if (view.approval) { %>
+    <section class="panel">
+      <h2><%= t('appr_outcome') %></h2>
+      <dl class="kv">
+        <dt><%= t('col_status') %></dt><dd><%= t('appr_' + view.approval.decision) %></dd>
+        <dt><%= t('appr_by') %></dt><dd><%= view.approval.byName %> · <%= fmt.dateTime(view.approval.at) %></dd>
+        <% if (view.approval.remarks) { %><dt><%= t('appr_remarks') %></dt><dd class="prose"><%= view.approval.remarks %></dd><% } %>
+      </dl>
+    </section>
+    <% } %>
+  </div>
+  <div class="stack">
+    <section class="panel">
+      <h2><%= t('item_reporter') %></h2>
+      <% if (reporter) { %>
+      <dl class="kv">
+        <dt><%= t('f_name') %></dt><dd><%= reporter.name %></dd>
+        <dt><%= t('f_email') %></dt><dd><%= reporter.email %></dd>
+        <% if (reporter.universityId) { %><dt><%= t('f_university_id') %></dt><dd><%= reporter.universityId %></dd><% } %>
+      </dl>
+      <% } %>
+    </section>
+    <section class="panel">
+      <h2><%= t('item_timeline') %></h2>
+      <%- include('/partials/timeline', { events: events }) %>
+    </section>
+  </div>
+</div>
+<%- include('/partials/bottom') %>

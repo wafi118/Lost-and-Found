@@ -1,0 +1,17 @@
+<% if (!events.length) { %>
+  <p class="muted"><%= t('timeline_empty') %></p>
+<% } else { %>
+<ol class="timeline">
+  <% events.forEach(function (e) {
+       var p = Object.assign({}, e.params || {});
+       if (p.method) p.method = t('method_' + p.method);
+       var detail = (e.params && (e.params.remarks || e.params.note)) || '';
+  %>
+  <li>
+    <strong><%= t(e.key, p) %></strong><% if (e.staffOnly) { %><span class="staff-only"><%= t('staff_only') %></span><% } %>
+    <span class="when"><%= fmt.dateTime(e.at) %></span>
+    <% if (detail) { %><span class="small muted prose"><%= detail %></span><% } %>
+  </li>
+  <% }) %>
+</ol>
+<% } %>

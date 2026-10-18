@@ -1,0 +1,18 @@
+<%- include('/partials/top', { shell: 'auth' }) %>
+<div class="auth-card">
+  <h1><%= t('auth_check_title') %></h1>
+  <p><%= t('auth_check_body', { email: email }) %></p>
+  <p class="muted"><%= t('auth_check_hint') %></p>
+  <% if (viaId) { %><p><%= t('auth_check_id_next') %></p><% } %>
+  <% if (resent) { %><div class="flash flash-success" data-flash data-type="success" role="status"><%- icon('check') %><p><%= t('flash_verify_resent') %></p></div><% } %>
+  <form method="post" action="/auth/resend">
+    <%- csrfField() %>
+    <input type="hidden" name="email" value="<%= email %>">
+    <button class="btn btn-secondary" type="submit"><%= t('auth_resend') %></button>
+  </form>
+  <% if (devLink) { %>
+    <div class="dev-box"><strong><%= t('dev_link_title') %></strong><%= t('dev_link_body') %><br><a href="<%= devLink %>"><%= devLink %></a></div>
+  <% } %>
+  <div class="auth-links"><a href="/auth/login"><%= t('auth_back_login') %></a></div>
+</div>
+<%- include('/partials/bottom', { shell: 'auth' }) %>

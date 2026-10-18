@@ -1,0 +1,17 @@
+<% if (!rows.length) { %>
+  <%- include('/partials/empty', locals.filtered
+    ? { art: 'search', heading: t('empty_filtered_title'), message: t('empty_filtered_body'), cta: { href: '/browse', label: t('empty_clear'), secondary: true, reset: true }, live: true }
+    : { art: 'search', heading: t('feed_empty_title'), message: t('feed_empty_body'), cta: locals.user ? { href: '/report', label: t('nav_report') } : { href: '/auth/login', label: t('empty_board_signin') } }) %>
+<% } else { %>
+<ul class="feed">
+  <% rows.forEach(function (c) { %>
+  <li class="feed-item">
+    <a href="/items/<%= c.ref %>">
+      <span class="tag tag-<%= c.type %>"><%= t('type_' + c.type) %></span>
+      <span class="feed-title"><%= c.masked ? c.categoryName : c.title %></span>
+      <span class="feed-meta"><% if (c.masked) { %><%- icon('lock', 'icon-sm') %> <%= t('feed_private') %> · <% } else { %><%= c.categoryName %> · <% } %><%= c.building %> · <%= fmt.date(c.occurredAt) %></span>
+    </a>
+  </li>
+  <% }) %>
+</ul>
+<% } %>

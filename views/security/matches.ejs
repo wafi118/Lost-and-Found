@@ -1,0 +1,10 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('nav_matches') %></h1><p><%= t('matches_sub') %></p></div></div>
+<% if (!list.length) { %>
+  <div class="panel"><%- include('/partials/empty', { art: 'search', heading: t('matches_none'), message: t('matches_none_body') }) %></div>
+<% } else { %>
+  <div class="stack-sm">
+    <% list.forEach(function (m) { %><%- include('/partials/match-card', { m: m, staff: true, canAct: canAct }) %><% }) %>
+  </div>
+<% } %>
+<%- include('/partials/bottom') %>

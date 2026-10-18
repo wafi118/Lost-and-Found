@@ -1,0 +1,49 @@
+<%- include('/partials/top') %>
+<div class="page-head"><div><h1><%= t('admin_title') %></h1><p><%= t('admin_sub') %></p></div></div>
+<div class="stat-row" role="group" aria-label="<%= t('admin_stats_accounts') %>">
+  <a class="stat" href="/admin/users?role=member"><span class="stat-num"><%= fmt.num(counts.members) %></span><span class="stat-label"><%= t('admin_stat_members') %></span></a>
+  <a class="stat" href="/admin/users?role=security"><span class="stat-num"><%= fmt.num(counts.security) %></span><span class="stat-label"><%= t('role_security') %></span></a>
+  <a class="stat" href="/admin/users?role=approver"><span class="stat-num"><%= fmt.num(counts.approver) %></span><span class="stat-label"><%= t('role_approver') %></span></a>
+  <a class="stat" href="/admin/users?status=pending"><span class="stat-num"><%= fmt.num(counts.pending) %></span><span class="stat-label"><%= t('admin_stat_pending') %></span></a>
+  <a class="stat" href="/admin/users?status=suspended"><span class="stat-num"><%= fmt.num(counts.suspended) %></span><span class="stat-label"><%= t('admin_stat_suspended') %></span></a>
+</div>
+<div class="stat-row compact page-section" role="group" aria-label="<%= t('admin_stats_cases') %>">
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.lost) %></span><span class="stat-label"><%= t('an_total_lost') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.found) %></span><span class="stat-label"><%= t('an_total_found') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.returned) %></span><span class="stat-label"><%= t('an_returned') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.recoveryRate) %>%</span><span class="stat-label"><%= t('an_recovery') %></span></div>
+  <div class="stat"><span class="stat-num"><%= fmt.num(totals.unclaimed) %></span><span class="stat-label"><%= t('an_unclaimed') %></span></div>
+</div>
+<div class="layout-2 page-section">
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('admin_recent') %></h2><a class="btn btn-ghost btn-sm" href="/admin/audit"><%= t('dash_all') %></a></div>
+    <% if (!recent.length) { %><p class="muted"><%= t('admin_no_activity') %></p><% } else { %>
+    <ul class="list">
+      <% recent.forEach(function (r) { %>
+      <li><span class="title"><code><%= r.action %></code> <%= r.entity %></span><span class="small muted block"><%= r.actor %> · <%= fmt.dateTime(r.at) %></span></li>
+      <% }) %>
+    </ul>
+    <% } %>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><h2><%= t('admin_pending') %></h2></div>
+    <% if (idWaiting > 0) { %><p><a href="/admin/id-reviews"><%= t('admin_id_waiting', { n: idWaiting }) %></a></p><% } %>
+    <% if (!requireApproval) { %><p class="muted"><%= t('admin_approval_off') %></p>
+    <% } else if (!pending.length) { %><p class="muted"><%= t('admin_pending_none') %></p>
+    <% } else { %>
+    <ul class="list">
+      <% pending.forEach(function (u) { %>
+      <li class="spread">
+        <span class="title"><%= u.name %><span class="small muted block"><%= u.email %></span></span>
+        <% if (u.emailVerified && u.verificationMethod === 'id_card') { %>
+        <% if (u.idProofId) { %><a class="btn btn-primary btn-sm" href="/admin/id-reviews/<%= u.idProofId %>"><%= t('idr_review') %></a><% } %>
+        <% } else if (u.emailVerified) { %>
+        <form method="post" action="/admin/users/<%= u.id %>/approve"><%- csrfField() %><button class="btn btn-primary btn-sm" type="submit"><%= t('admin_approve') %></button></form>
+        <% } else { %><span class="chip chip-gray"><%= t('admin_unverified') %></span><% } %>
+      </li>
+      <% }) %>
+    </ul>
+    <% } %>
+  </section>
+</div>
+<%- include('/partials/bottom') %>
