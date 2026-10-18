@@ -1,6 +1,6 @@
 # SafeFind project memory
 
-App version: 1.7.0
+App version: 1.7.1
 Last updated: 2026-10-18
 
 This file is the memory of the SafeFind project. It says what the project is, how the owner wants the work done, what state the code is in, which decisions were made and why, what is still open, and what changed in each version. If the assistant, the Claude account or the chat is lost, give this file and the latest project zip to a new assistant or a new team member, and the work continues from where it stopped, without explaining the project again.
@@ -146,6 +146,7 @@ Original documents (the owner keeps these; they were in the Claude Project named
 | Security Cell and administrator: all case statuses in one list, and a handover history | Works (1.6.0) |
 | The reporter reads Security Cell notes; both sides can post an update with a photo; removing a note, update or photo leaves a line in the case history | Works (1.7.0) |
 | Claims in the personal menu, with the QR and handover code while the claim is verified | Works (1.7.0) |
+| Administrator dashboard shows account and case figures and recent activity. Waiting accounts are on Users, not a second panel | Works (1.7.1) |
 | Home page | Built in 1.3.1 from the owner's concept as drawn: eyebrow labels, the underlined headline, three tiles, a stats box with the board and a follow card, the campus photo, a four-step strip, four features, a before-and-after table, who can use it, team and contact. The hero image is the concept's ticket diagram: a Lost and a Found ticket, the Security Cell step and the return to the owner. | Works |
 | English and Bangla | Public, sign-in and member screens are translated. Staff and administrator screens fall back to English where a string is not translated. |
 | Data storage | PostgreSQL, through `DATABASE_URL`. The server applies `docs/schema.sql` to an empty database, then seeds demo data once. `database/safefind.sql` is a dump of that database. Tests use the same schema on PGlite. |
@@ -405,6 +406,13 @@ Version 1.3.0 redesigned the home page from the owner's concept and was rejected
 | Who may remove what | Security Cell removes a note. Security Cell or the author removes an update. Security Cell or the reporter removes any photo on that case | A photo can be the wrong picture. The reporter should be able to take it down. The note itself stays a Security Cell record |
 | Where the QR is | **Claims** in the personal menu (`/claims`), and still on the claim page | The owner asked for a Claims menu that shows the QR. It appears while the claim is verified and the code has not expired |
 
+### 6.8 Decisions made in version 1.7.1
+
+| Question | Choice | Why |
+|---|---|---|
+| The "approval is switched off" panel | Not shown on the administrator dashboard | The owner asked for that block not to be written there |
+| When a list still appears | Only if an ID card is waiting for review, or approval is on and an account is waiting | An empty explanation is not useful. The pending count still opens Users |
+
 ## 7. Open items
 
 | ID | Item | Why it matters |
@@ -452,6 +460,7 @@ Repeat the checks with the commands in section 5.7.
 | 1.4.0 | `npm test`, `npm run smoke`; a one-off Playwright script that loads the new pages at 1280 and 360 px in light and dark and uploads a photo with the uploader; four deliberate breaks of the security guards (each made a test fail) | 201 of 201 tests (169 before); smoke clean; no sideways scroll at 360 px; photo preview works; the review page loads the photo. The screenshots showed a real bug (the sidebar named the applicant), now fixed and tested. `npm run browser-check` was not extended for the new pages. | Node 22, Linux, headless Chromium 156 through Playwright |
 | 1.6.0 | `npm test` | 205 of 205 tests passed | Node on Linux |
 | 1.7.0 | `npm test` | 206 of 206 tests passed | Node on Linux |
+| 1.7.1 | `npm test` | 207 of 207 tests passed | Node on Linux |
 
 The 1.2.0 tests that are new: `tests/ui.test.js` (10 tests), `tests/images.test.js` (8) and `tests/realtime.test.js` (11, over a real WebSocket connection). The browser check covers the toasts, the uploader, the report steps, live filters, live alerts, text contrast in both themes and both languages, and 360 px width.
 
@@ -462,6 +471,13 @@ In 1.3.1 the home page was also compared with the owner's concept by a one-off s
 Never verified so far: a real Cloudinary account, WebSocket through a real reverse proxy, Safari, Firefox, Windows, a real phone camera, touch drag-and-drop, Node versions other than 22, and the requirement-by-requirement coverage of the proposal (Appendix A lists where each requirement lives, but the 1.2 work did not audit them one by one).
 
 ## 9. Change history (newest first)
+
+### v1.7.1 (2026-10-18) No waiting-accounts panel on the administrator dashboard
+Asked for: that part should not be written on the admin dashboard; remove it.
+Done: the empty "Accounts waiting for approval" panel is gone, including the sentence about `REQUIRE_ADMIN_APPROVAL`. Recent activity stays. A line appears only when an ID card is waiting, or when approval is on and someone is waiting. The pending count still opens Users.
+Decisions: section 6.8.
+Files: `views/admin/dashboard.ejs`, `controllers/admin.controller.js`, `tests/http.test.js`, `package.json`, `package-lock.json`, `docs/CHANGELOG.md`, `docs/PROJECT_MEMORY.md`.
+Verified: `npm test` (207 passed).
 
 ### v1.7.0 (2026-10-18) Notes for the reporter, updates with photos, Claims menu
 Asked for: the person who filed the report should see Security Cell notes; Security Cell should be able to send an update, and either side should be able to attach a photo; a photo or a note can be removed, and the history should say that it was removed; the user should have a Claims menu that shows the QR.

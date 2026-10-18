@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.7.1
+
+The administrator dashboard no longer shows the note that account approval is switched off.
+
+### Changed
+
+- The empty "Accounts waiting for approval" panel is gone, including the `REQUIRE_ADMIN_APPROVAL` sentence. Recent activity stays. The pending count still opens Users. A line appears only when an ID card is actually waiting, or when approval is on and someone is waiting.
+
 ## 1.7.0
 
 The person who reported a case can read Security Cell notes. Either side can send an update and attach a photo. Removing a note, an update or a photo leaves a line in the case history. Claims is in the personal menu and shows the QR.

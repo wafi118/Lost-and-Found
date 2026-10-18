@@ -247,6 +247,15 @@ test('an administrator can delete an account and free the email and ID, but not 
   assert.notEqual(reuse.id, u.id);
 });
 
+test('the admin dashboard does not show the waiting-accounts panel', async () => {
+  const admin = await signedIn(srv.base, 'admin');
+  const page = await admin.get('/admin');
+  assert.equal(page.status, 200);
+  assert.match(page.text, /Recent activity/);
+  assert.doesNotMatch(page.text, /Accounts waiting for approval/);
+  assert.doesNotMatch(page.text, /REQUIRE_ADMIN_APPROVAL/);
+});
+
 test('security and admin can read every case status and past handovers together', async () => {
   for (const who of ['security', 'admin']) {
     const c = await signedIn(srv.base, who);
